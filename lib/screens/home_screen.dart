@@ -739,11 +739,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Zipline Sharing',
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10.0), // Aligns title with button center
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Zipline Sharing',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.94),
                                 fontSize: 30,
@@ -774,7 +776,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   fontWeight: FontWeight.w300,
                                 ),
                               ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       Row(

@@ -67,3 +67,4 @@ app.*.map.json
 .flutter-plugins
 .flutter-plugins-dependencies
 
+android/key.properties
