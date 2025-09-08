@@ -15,11 +15,12 @@ class UploadQueueWidget extends StatelessWidget {
       stream: queueService.queueStream,
       builder: (context, snapshot) {
         final tasks = snapshot.data ?? [];
-        final activeTasks = tasks.where((t) => 
-          t.status == UploadStatus.uploading || 
-          t.status == UploadStatus.pending
-        ).toList();
-        
+        final activeTasks = tasks
+            .where((t) =>
+                t.status == UploadStatus.uploading ||
+                t.status == UploadStatus.pending)
+            .toList();
+
         if (activeTasks.isEmpty) {
           return const SizedBox.shrink();
         }
@@ -45,7 +46,8 @@ class UploadQueueWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
@@ -90,7 +92,9 @@ class UploadQueueWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              ...activeTasks.take(2).map((task) => _buildTaskItem(context, task)),
+              ...activeTasks
+                  .take(2)
+                  .map((task) => _buildTaskItem(context, task)),
             ],
           ),
         );
@@ -299,7 +303,8 @@ class UploadQueueWidget extends StatelessWidget {
               ),
             ],
           ),
-          if (task.status == UploadStatus.uploading || task.status == UploadStatus.paused) ...[
+          if (task.status == UploadStatus.uploading ||
+              task.status == UploadStatus.paused) ...[
             const SizedBox(height: 8),
             LinearProgressIndicator(
               value: task.progress,
@@ -362,7 +367,8 @@ class UploadQueueWidget extends StatelessWidget {
               child: TextButton(
                 onPressed: () => queueService.retryUpload(task.id),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   backgroundColor: Colors.red.withValues(alpha: 0.1),
                 ),
                 child: Text(

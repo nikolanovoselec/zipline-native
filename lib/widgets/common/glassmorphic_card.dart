@@ -5,7 +5,7 @@ class GlassmorphicCard extends StatelessWidget {
   final EdgeInsets? padding;
   final BorderRadius? borderRadius;
   final double opacity;
-  
+
   const GlassmorphicCard({
     super.key,
     required this.child,

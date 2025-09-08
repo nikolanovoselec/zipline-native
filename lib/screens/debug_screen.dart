@@ -55,7 +55,8 @@ class _DebugScreenState extends State<DebugScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -297,8 +298,9 @@ class _DebugScreenState extends State<DebugScreen> {
                     children: stats.entries.map((entry) {
                       return Chip(
                         label: Text('${entry.key}: ${entry.value}'),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.surfaceContainerHighest,
+                        backgroundColor: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
                         labelStyle: const TextStyle(fontSize: 12),
                       );
                     }).toList(),

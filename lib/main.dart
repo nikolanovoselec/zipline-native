@@ -14,10 +14,10 @@ import 'widgets/upload_queue_overlay.dart';
 void main() {
   // Setup dependency injection
   setupServiceLocator();
-  
+
   // Initialize sharing service
   locator.sharing.initialize();
-  
+
   runApp(
     MultiProvider(
       providers: [
@@ -244,7 +244,8 @@ class _SplashScreenState extends State<SplashScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFF00E5FF).withValues(alpha: 0.4),
+                            color:
+                                const Color(0xFF00E5FF).withValues(alpha: 0.4),
                             width: 1,
                           ),
                         ),
@@ -268,7 +269,8 @@ class _SplashScreenState extends State<SplashScreen> {
                         color: Colors.white,
                         shadows: [
                           Shadow(
-                            color: const Color(0xFF00E5FF).withValues(alpha: 0.5),
+                            color:
+                                const Color(0xFF00E5FF).withValues(alpha: 0.5),
                             blurRadius: 10,
                             offset: const Offset(0, 2),
                           ),

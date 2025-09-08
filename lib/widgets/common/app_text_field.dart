@@ -15,7 +15,7 @@ class AppTextField extends StatefulWidget {
   final List<String>? autofillHints;
   final String? Function(String?)? validator;
   final bool flatLeftCorners;
-  
+
   const AppTextField({
     super.key,
     required this.controller,
@@ -158,7 +158,9 @@ class _AppTextFieldState extends State<AppTextField> {
                       padding: const EdgeInsets.only(right: 4),
                       child: IconButton(
                         icon: Icon(
-                          _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          _obscureText
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
                           color: Colors.white.withValues(alpha: 0.6),
                           size: 20,
                         ),
@@ -168,7 +170,8 @@ class _AppTextFieldState extends State<AppTextField> {
                           });
                         },
                         splashRadius: 20,
-                        tooltip: _obscureText ? 'Show password' : 'Hide password',
+                        tooltip:
+                            _obscureText ? 'Show password' : 'Hide password',
                       ),
                     ),
                 ],

@@ -88,7 +88,7 @@ class OAuthService {
   }
 
   /// Initiates the complete OAuth authentication flow.
-  /// 
+  ///
   /// This method orchestrates the entire OAuth process:
   /// 1. Requests OAuth redirect URL from Zipline server
   /// 2. Modifies redirect_uri to use Cloudflare Worker bridge
@@ -96,14 +96,14 @@ class OAuthService {
   /// 4. Listens for deep link callback with authorization code
   /// 5. Exchanges code for session (handled by Worker in new flow)
   /// 6. Stores session cookie securely
-  /// 
+  ///
   /// Parameters:
   /// - [ziplineUrl]: The Zipline server URL
   /// - [cfClientId]: Optional Cloudflare Access client ID for protected instances
   /// - [cfClientSecret]: Optional Cloudflare Access client secret
-  /// 
+  ///
   /// Returns true if authentication successful, false otherwise.
-  /// 
+  ///
   /// Security considerations:
   /// - Uses state parameter to prevent CSRF attacks
   /// - Validates state on callback to ensure request integrity
@@ -134,7 +134,7 @@ class OAuthService {
       // Determine the OAuth redirect URI
       // Priority: 1. Build-time configuration, 2. Same domain as Zipline
       String redirectUri;
-      
+
       if (BuildConfig.hasCustomOAuthUrl) {
         // Use the build-time configured OAuth URL
         redirectUri = BuildConfig.oauthRedirectUrl;
@@ -148,7 +148,7 @@ class OAuthService {
         final uri = Uri.parse(ziplineUrl);
         final domain = uri.host;
         redirectUri = 'https://$domain/app/oauth-redirect';
-        
+
         _debugService.logAuth('Using Zipline domain for OAuth redirect', data: {
           'ziplineUrl': ziplineUrl,
           'domain': domain,

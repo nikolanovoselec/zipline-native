@@ -42,7 +42,7 @@ class IntentService {
 
             // Try to get the actual filename first
             String? originalFileName = await getContentUriFileName(filePath);
-            
+
             String fileName;
             if (originalFileName != null && originalFileName.isNotEmpty) {
               // Use the original filename
@@ -53,10 +53,13 @@ class IntentService {
             } else {
               // Fallback to generated filename with proper extension
               final extension = _getFileExtensionFromUri(filePath);
-              fileName = 'shared_file_${DateTime.now().millisecondsSinceEpoch}$extension';
-              debugService.logIntent('Using generated filename (original not available)', data: {
-                'generatedFileName': fileName,
-              });
+              fileName =
+                  'shared_file_${DateTime.now().millisecondsSinceEpoch}$extension';
+              debugService.logIntent(
+                  'Using generated filename (original not available)',
+                  data: {
+                    'generatedFileName': fileName,
+                  });
             }
 
             final copiedFile = await copyContentUriFile(filePath, fileName);
@@ -132,32 +135,35 @@ class IntentService {
     }
   }
 
-  /// Get the actual filename from content URI  
+  /// Get the actual filename from content URI
   Future<String?> getContentUriFileName(String contentUri) async {
     final debugService = DebugService();
-    
+
     try {
       debugService.logIntent('Getting filename from content URI', data: {
         'contentUri': contentUri,
       });
-      
-      final String? fileName = await platform.invokeMethod('getContentUriFileName', {
+
+      final String? fileName =
+          await platform.invokeMethod('getContentUriFileName', {
         'contentUri': contentUri,
       });
-      
+
       debugService.logIntent('Retrieved filename from content URI', data: {
         'contentUri': contentUri,
         'fileName': fileName,
         'hasFileName': fileName != null && fileName.isNotEmpty,
       });
-      
+
       return fileName;
     } on PlatformException catch (e, stackTrace) {
-      debugService.logError('INTENT', 'Platform exception getting content URI filename',
+      debugService.logError(
+          'INTENT', 'Platform exception getting content URI filename',
           error: e, stackTrace: stackTrace);
       return null;
     } catch (e, stackTrace) {
-      debugService.logError('INTENT', 'Unexpected error getting content URI filename',
+      debugService.logError(
+          'INTENT', 'Unexpected error getting content URI filename',
           error: e, stackTrace: stackTrace);
       return null;
     }
@@ -226,17 +232,17 @@ class IntentService {
   }
 
   /// Extracts file extension from Android content URI using multiple detection strategies.
-  /// 
+  ///
   /// This method employs a comprehensive approach to determine file extensions:
   /// 1. Checks for MIME type patterns in the URI (e.g., image%2Fjpeg)
   /// 2. Looks for file extensions in URI segments
   /// 3. Maps MIME types to extensions for common formats
   /// 4. Handles special cases for various apps (Chrome, Photos, etc.)
   /// 5. Falls back to .tmp if no extension can be determined
-  /// 
+  ///
   /// The method is necessary because Android content URIs often don't include
   /// file extensions directly, requiring inference from MIME types or URI patterns.
-  /// 
+  ///
   /// Returns: File extension with dot prefix (e.g., '.jpg', '.pdf', '.tmp')
   String _getFileExtensionFromUri(String uri) {
     final debugService = DebugService();

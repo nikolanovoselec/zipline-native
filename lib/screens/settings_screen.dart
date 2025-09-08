@@ -48,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         final ziplineUrl = (credentials['ziplineUrl'] ?? '').trim();
         // Strip https:// prefix when loading into the controller
-        _urlController.text = ziplineUrl.startsWith('https://') 
+        _urlController.text = ziplineUrl.startsWith('https://')
             ? ziplineUrl.substring(8).trim()
             : ziplineUrl;
         _cfClientIdController.text = credentials['cfClientId'] ?? '';
@@ -358,7 +358,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildServerUrlTextField() {
     return _buildTextField(
       controller: _urlController,
-      label: '',  // Remove redundant label
+      label: '', // Remove redundant label
       placeholder: 'your-zipline-server.com',
       icon: Icons.dns_outlined,
       prefix: 'https://',
@@ -529,9 +529,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       offset: const Offset(0, -8),
                       child: _buildServerUrlTextField(),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Cloudflare Access Section
                     Row(
                       children: [
@@ -572,7 +572,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Text(
                             'Your Cloudflare Access application ID',
                             style: TextStyle(
-                              color: const Color(0xFF94A3B8).withValues(alpha: 0.72),
+                              color: const Color(0xFF94A3B8)
+                                  .withValues(alpha: 0.72),
                               fontSize: 12,
                               fontWeight: FontWeight.w300,
                             ),
@@ -598,7 +599,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Text(
                             'Your Cloudflare Access application secret',
                             style: TextStyle(
-                              color: const Color(0xFF94A3B8).withValues(alpha: 0.72),
+                              color: const Color(0xFF94A3B8)
+                                  .withValues(alpha: 0.72),
                               fontSize: 12,
                               fontWeight: FontWeight.w300,
                             ),
@@ -606,9 +608,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Save Settings Button (inside card)
                     _buildButton(
                       text: _isLoading ? 'Saving...' : 'Save Settings',
@@ -766,7 +768,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Text(
                         'Use fingerprint or face recognition for quick access',
                         style: TextStyle(
-                          color: const Color(0xFF94A3B8).withValues(alpha: 0.72),
+                          color:
+                              const Color(0xFF94A3B8).withValues(alpha: 0.72),
                           fontSize: 14,
                           fontWeight: FontWeight.w300,
                         ),
@@ -803,7 +806,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             Text(
                               'Biometric login is active',
                               style: TextStyle(
-                                color: const Color(0xFF4CAF50).withValues(alpha: 0.9),
+                                color: const Color(0xFF4CAF50)
+                                    .withValues(alpha: 0.9),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w300,
                               ),
@@ -884,14 +888,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           Icon(
                             Icons.logout,
-                            color: const Color(0xFFFF6B6B).withValues(alpha: 0.9),
+                            color:
+                                const Color(0xFFFF6B6B).withValues(alpha: 0.9),
                             size: 20,
                           ),
                           const SizedBox(width: 12),
                           Text(
                             'Logout',
                             style: TextStyle(
-                              color: const Color(0xFFFF6B6B).withValues(alpha: 0.9),
+                              color: const Color(0xFFFF6B6B)
+                                  .withValues(alpha: 0.9),
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
                               letterSpacing: 0.5,

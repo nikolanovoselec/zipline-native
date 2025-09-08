@@ -4,7 +4,7 @@ class SkeletonLoader extends StatefulWidget {
   final double width;
   final double height;
   final BorderRadius? borderRadius;
-  
+
   const SkeletonLoader({
     super.key,
     required this.width,
@@ -28,7 +28,7 @@ class _SkeletonLoaderState extends State<SkeletonLoader>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat();
-    
+
     _animation = Tween<double>(
       begin: 0.3,
       end: 0.6,
@@ -100,7 +100,10 @@ class SkeletonListItem extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      SkeletonLoader(width: 32, height: 32, borderRadius: BorderRadius.circular(8)),
+                      SkeletonLoader(
+                          width: 32,
+                          height: 32,
+                          borderRadius: BorderRadius.circular(8)),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(

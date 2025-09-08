@@ -462,7 +462,6 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen>
     );
   }
 
-
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -586,7 +585,8 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen>
                   _loadSavedCredentials();
                 },
                 child: Container(
-                  padding: const EdgeInsets.all(6), // Adds 6px touch area around icon
+                  padding: const EdgeInsets.all(
+                      6), // Adds 6px touch area around icon
                   child: Container(
                     width: 36,
                     height: 36,
@@ -625,9 +625,11 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen>
                             width: 100,
                             height: 100,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1976D2).withValues(alpha: 0.1),
+                              color: const Color(0xFF1976D2)
+                                  .withValues(alpha: 0.1),
                               border: Border.all(
-                                color: const Color(0xFF1976D2).withValues(alpha: 0.3),
+                                color: const Color(0xFF1976D2)
+                                    .withValues(alpha: 0.3),
                                 width: 1,
                               ),
                               shape: BoxShape.circle,
@@ -635,7 +637,8 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen>
                             child: Icon(
                               Icons.cloud_upload,
                               size: 50,
-                              color: const Color(0xFF1976D2).withValues(alpha: 0.9),
+                              color: const Color(0xFF1976D2)
+                                  .withValues(alpha: 0.9),
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -747,15 +750,17 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen>
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
-                                    const Color(0xFFFF6B6B).withValues(alpha: 0.05),
-                                    const Color(0xFFFF6B6B).withValues(alpha: 0.02),
+                                    const Color(0xFFFF6B6B)
+                                        .withValues(alpha: 0.05),
+                                    const Color(0xFFFF6B6B)
+                                        .withValues(alpha: 0.02),
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
                                 border: Border.all(
-                                  color:
-                                      const Color(0xFFFF6B6B).withValues(alpha: 0.2),
+                                  color: const Color(0xFFFF6B6B)
+                                      .withValues(alpha: 0.2),
                                   width: 0.29,
                                 ),
                                 borderRadius: BorderRadius.circular(18),

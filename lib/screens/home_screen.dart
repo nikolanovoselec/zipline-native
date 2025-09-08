@@ -107,12 +107,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadActivities() async {
     final activities = await _activityService.getActivities();
-    
+
     locator.debug.log('ACTIVITIES', 'Loaded activities from storage', data: {
       'totalActivities': activities.length,
       'activityTypes': activities.map((a) => a['type']).toSet().toList(),
     });
-    
+
     // Debug first few items to understand structure
     for (int i = 0; i < (activities.length > 3 ? 3 : activities.length); i++) {
       final item = activities[i];
@@ -126,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'allKeys': item.keys.toList(),
         'timestamp': item['timestamp'],
       });
-      
+
       // Check if files have proper IDs
       if (item['files'] != null) {
         for (int j = 0; j < item['files'].length; j++) {
@@ -141,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
     }
-    
+
     setState(() {
       _uploadHistory = activities;
     });
@@ -269,9 +269,9 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _uploadProgress = 0.0;
       });
-      
+
       final results = await _uploadService.uploadMultipleFiles(
-        files, 
+        files,
         onProgress: (progress) {
           if (mounted) {
             setState(() {
@@ -378,7 +378,9 @@ class _HomeScreenState extends State<HomeScreen> {
           'type': 'url_shortening',
           'originalUrl': normalizedUrl,
           'url': result['short'] ?? result['url'],
-          'vanity': _customSlugController.text.trim().isEmpty ? null : _customSlugController.text.trim(),
+          'vanity': _customSlugController.text.trim().isEmpty
+              ? null
+              : _customSlugController.text.trim(),
           'success': true,
         });
 
@@ -397,14 +399,16 @@ class _HomeScreenState extends State<HomeScreen> {
             'URL', 'URL shortening success, clipboard notification triggered');
       } else if (result != null && result['success'] == false) {
         // Handle API error response
-        locator.debug.log('URL', 'URL shortening failed', level: 'ERROR', data: result);
+        locator.debug
+            .log('URL', 'URL shortening failed', level: 'ERROR', data: result);
         if (mounted) {
           setState(() {
             _isUrlShortening = false;
           });
-          final errorMsg = result['error']?.toString() ?? 'URL shortening failed';
+          final errorMsg =
+              result['error']?.toString() ?? 'URL shortening failed';
           // Extract cleaner error message if it's a DioException string
-          final cleanError = errorMsg.contains('status code of 400') 
+          final cleanError = errorMsg.contains('status code of 400')
               ? 'Invalid URL format or server rejected the request'
               : errorMsg.split('\n').first;
           _showErrorSnackBar(cleanError, onRetry: _shortenUrl);
@@ -416,7 +420,8 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() {
             _isUrlShortening = false;
           });
-          _showErrorSnackBar('URL shortening failed: No result returned', onRetry: _shortenUrl);
+          _showErrorSnackBar('URL shortening failed: No result returned',
+              onRetry: _shortenUrl);
         }
       }
     } catch (e) {
@@ -430,7 +435,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
     _showClipboardToast();
@@ -441,7 +445,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final credentials = await _authService.getCredentials();
       final ziplineUrl = credentials['ziplineUrl'];
-      
+
       if (ziplineUrl == null || ziplineUrl.isEmpty) {
         _showHeaderNotification(
           'No server URL configured',
@@ -449,7 +453,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
         return;
       }
-      
+
       final uri = Uri.parse(ziplineUrl);
       if (await canLaunchUrl(uri)) {
         await launchUrl(
@@ -463,7 +467,8 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     } catch (e) {
-      locator.debug.logError('BROWSER', 'Failed to open server in browser', error: e);
+      locator.debug
+          .logError('BROWSER', 'Failed to open server in browser', error: e);
       _showHeaderNotification(
         'Failed to open browser',
         Colors.red.shade600,
@@ -503,7 +508,6 @@ class _HomeScreenState extends State<HomeScreen> {
     overlay.insert(overlayEntry);
   }
 
-
   void _showErrorSnackBar(String message, {VoidCallback? onRetry}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -540,15 +544,15 @@ class _HomeScreenState extends State<HomeScreen> {
   // Swipe action methods for recent items
   Future<void> _deleteRecentItem(Map<String, dynamic> item) async {
     await HapticFeedback.mediumImpact();
-    
+
     // Remove from local activity list immediately for responsive UI
     setState(() {
       _uploadHistory.remove(item);
     });
-    
+
     // Save updated activity list
     await _activityService.saveActivities(_uploadHistory);
-    
+
     // If item has an ID, try to delete from server
     // For file uploads, ID is nested in files[0]['id'], for URLs it's at top level
     String? itemId;
@@ -557,14 +561,14 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       itemId = item['id'] as String?;
     }
-    
+
     locator.debug.log('DELETE', 'Attempting to delete item', data: {
       'itemId': itemId,
       'hasItemId': itemId != null,
       'itemType': item['type'],
       'itemKeys': item.keys.toList(),
     });
-    
+
     if (itemId != null) {
       bool success;
       if (item['type'] == 'url_shortening') {
@@ -584,7 +588,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'item': item,
       });
     }
-    
+
     _showHeaderNotification(
       'Item Deleted!',
       Colors.red.shade600,
@@ -593,12 +597,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _setRecentItemPassword(Map<String, dynamic> item) async {
     await HapticFeedback.selectionClick();
-    
+
     if (!mounted) return;
-    
+
     final passwordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
-    
+
     final result = await showDialog<String>(
       context: context,
       builder: (context) => Dialog(
@@ -654,7 +658,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   TextButton(
                     onPressed: () {
                       if (passwordController.text.isNotEmpty &&
-                          passwordController.text == confirmPasswordController.text) {
+                          passwordController.text ==
+                              confirmPasswordController.text) {
                         Navigator.of(context).pop(passwordController.text);
                       } else if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -666,7 +671,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
                     },
                     style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFF1976D2).withValues(alpha: 0.2),
+                      backgroundColor:
+                          const Color(0xFF1976D2).withValues(alpha: 0.2),
                       foregroundColor: const Color(0xFF1976D2),
                     ),
                     child: const Text('Set Password'),
@@ -678,7 +684,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-    
+
     if (result != null) {
       // Extract ID based on item type
       String? itemId;
@@ -687,7 +693,7 @@ class _HomeScreenState extends State<HomeScreen> {
       } else {
         itemId = item['id'] as String?;
       }
-      
+
       if (itemId != null) {
         bool success;
         if (item['type'] == 'url_shortening') {
@@ -697,14 +703,14 @@ class _HomeScreenState extends State<HomeScreen> {
           // Use file-specific password function
           success = await _uploadService.setFilePassword(itemId, result);
         }
-        
+
         if (success) {
           setState(() {
             item['hasPassword'] = true;
           });
         }
       }
-      
+
       _showHeaderNotification(
         'Password Added!',
         Colors.blue.shade600,
@@ -721,431 +727,460 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           SafeArea(
             child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header with title, server info and settings
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Zipline Sharing',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.94),
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  // Header with title, server info and settings
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Zipline Sharing',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.94),
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_ziplineUrl != null) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                Uri.tryParse(_ziplineUrl!)?.host ??
+                                    _ziplineUrl!,
+                                style: TextStyle(
+                                  color: const Color(0xFF94A3B8)
+                                      .withValues(alpha: 0.65),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 8),
+                            if (_username != null)
+                              Text(
+                                'Welcome, $_username',
+                                style: TextStyle(
+                                  color: const Color(0xFF94A3B8)
+                                      .withValues(alpha: 0.77),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                          ],
                         ),
-                        if (_ziplineUrl != null) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            Uri.tryParse(_ziplineUrl!)?.host ?? _ziplineUrl!,
-                            style: TextStyle(
-                              color: const Color(0xFF94A3B8).withValues(alpha: 0.65),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w300,
+                      ),
+                      Row(
+                        children: [
+                          // Open in browser button
+                          GestureDetector(
+                            onTap: _openServerInBrowser,
+                            child: Container(
+                              padding: const EdgeInsets.all(
+                                  6), // Adds 6px touch area around icon
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.15),
+                                    width: 0.3,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.open_in_browser_outlined,
+                                  color: const Color(0xFF94A3B8)
+                                      .withValues(alpha: 0.7),
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Settings button with increased touch area
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const SettingsScreen(),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(
+                                  6), // Adds 6px touch area around icon
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.15),
+                                    width: 0.3,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.settings_outlined,
+                                  color: const Color(0xFF94A3B8)
+                                      .withValues(alpha: 0.7),
+                                  size: 16,
+                                ),
+                              ),
                             ),
                           ),
                         ],
-                        const SizedBox(height: 8),
-                        if (_username != null)
-                          Text(
-                            'Welcome, $_username',
-                            style: TextStyle(
-                              color: const Color(0xFF94A3B8).withValues(alpha: 0.77),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      // Open in browser button
-                      GestureDetector(
-                        onTap: _openServerInBrowser,
-                        child: Container(
-                          padding: const EdgeInsets.all(6), // Adds 6px touch area around icon
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.05),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.15),
-                                width: 0.3,
-                              ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.open_in_browser_outlined,
-                              color: const Color(0xFF94A3B8).withValues(alpha: 0.7),
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Settings button with increased touch area
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const SettingsScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(6), // Adds 6px touch area around icon
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.05),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.15),
-                                width: 0.3,
-                              ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.settings_outlined,
-                              color: const Color(0xFF94A3B8).withValues(alpha: 0.7),
-                              size: 16,
-                            ),
-                          ),
-                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
 
-              const SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
-              // Upload Files Card
-              _buildCard(
-                child: Column(
-                  children: [
-                    Row(
+                  // Upload Files Card
+                  _buildCard(
+                    child: Column(
                       children: [
-                        _buildIcon(
-                          isUploading: _isUploading,
-                          uploadingIcon: Icons.cloud_sync,
-                          defaultIcon: Icons.file_present,
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Upload Files',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.91),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _isUploading
-                                    ? 'Processing files...'
-                                    : 'Share files from your device',
-                                style: TextStyle(
-                                  color:
-                                      const Color(0xFF94A3B8).withValues(alpha: 0.72),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 33),
-                    _buildButton(
-                      text: _isUploading ? 'Uploading...' : 'Select Files',
-                      onPressed: _isUploading ? null : _pickAndUploadFiles,
-                      isLoading: _isUploading,
-                      progress: _isUploading ? _uploadProgress : null,
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Shorten URL Card
-              _buildCard(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        _buildIcon(
-                          isUploading: false,
-                          defaultIcon: Icons.link_rounded,
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Shorten URL',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.91),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Create short links for sharing',
-                                style: TextStyle(
-                                  color:
-                                      const Color(0xFF94A3B8).withValues(alpha: 0.72),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 28),
-                    MinimalTextField(
-                      controller: _urlController,
-                      placeholder: 'Enter or paste your URL',
-                      icon: Icons.link,
-                      showLabel: false,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _shortenUrl(),
-                      keyboardType: TextInputType.url,
-                    ),
-                    const SizedBox(height: 20),
-                    MinimalTextField(
-                      controller: _customSlugController,
-                      placeholder: 'Enter custom slug (optional)',
-                      icon: Icons.tag,
-                      showLabel: false,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _shortenUrl(),
-                    ),
-                    const SizedBox(height: 31),
-                    _buildButton(
-                      text: _isUrlShortening
-                          ? 'Creating short link...'
-                          : 'Shorten URL',
-                      onPressed: _isUrlShortening ? null : _shortenUrl,
-                      isLoading: _isUrlShortening,
-                    ),
-                  ],
-                ),
-              ),
-
-              // History section with max 2 items
-              if (_uploadHistory.isNotEmpty) ...[
-                const SizedBox(height: 30),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.history,
-                      color: const Color(0xFF94A3B8).withValues(alpha: 0.7),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Recent Activity',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () async {
-                        await _activityService.clearActivities();
-                        await _loadActivities();
-                      },
-                      child: Text(
-                        'Clear All',
-                        style: TextStyle(
-                          color: const Color(0xFF1976D2).withValues(alpha: 0.8),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Show max 100 recent items
-                ...List.generate(
-                  _uploadHistory.length > 100 ? 100 : _uploadHistory.length,
-                  (index) {
-                    final item = _uploadHistory[index];
-                    final isFile = item['type'] == 'file_upload';
-                    final isUrlShortening = item['type'] == 'url_shortening';
-
-                    String displayUrl;
-                    String displayName;
-
-                    if (isFile) {
-                      displayUrl = item['files']?[0]?['url'] ?? 'Unknown';
-                      displayName = item['files']?[0]?['name'] ?? 'File';
-                    } else if (isUrlShortening) {
-                      displayUrl = item['url'] ?? 'Unknown';
-                      displayName =
-                          item['originalUrl'] ?? item['vanity'] ?? 'URL';
-                    } else {
-                      // Legacy format fallback
-                      displayUrl =
-                          item['files']?[0]?['url'] ?? item['url'] ?? 'Unknown';
-                      displayName =
-                          item['files']?[0]?['name'] ?? item['vanity'] ?? 'URL';
-                    }
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: Slidable(
-                        startActionPane: ActionPane(
-                          motion: const ScrollMotion(),
+                        Row(
                           children: [
-                            SlidableAction(
-                              onPressed: (_) => _setRecentItemPassword(item),
-                              backgroundColor: Colors.blue.shade600,
-                              foregroundColor: Colors.white,
-                              icon: Icons.lock_outline,
-                              label: 'Protect',
-                              borderRadius: BorderRadius.circular(12),
+                            _buildIcon(
+                              isUploading: _isUploading,
+                              uploadingIcon: Icons.cloud_sync,
+                              defaultIcon: Icons.file_present,
                             ),
-                          ],
-                        ),
-                        endActionPane: ActionPane(
-                          motion: const ScrollMotion(),
-                          children: [
-                            SlidableAction(
-                              onPressed: (_) => _deleteRecentItem(item),
-                              backgroundColor: Colors.red.shade600,
-                              foregroundColor: Colors.white,
-                              icon: Icons.delete,
-                              label: 'Delete',
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ],
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.03),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.08),
-                              width: 0.5,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            child: InkWell(
-                              onTap: () => _copyToClipboard(displayUrl),
-                              borderRadius: BorderRadius.circular(12),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF1976D2).withValues(alpha: 0.15),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: const Color(0xFF1976D2).withValues(alpha: 0.3),
-                                      width: 1,
+                            const SizedBox(width: 24),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Upload Files',
+                                    style: TextStyle(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.91),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400,
                                     ),
                                   ),
-                                  child: Icon(
-                                    isFile ? Icons.file_present : Icons.link,
-                                    color: const Color(0xFF1976D2).withValues(alpha: 0.8),
-                                    size: 16,
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _isUploading
+                                        ? 'Processing files...'
+                                        : 'Share files from your device',
+                                    style: TextStyle(
+                                      color: const Color(0xFF94A3B8)
+                                          .withValues(alpha: 0.72),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w300,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        displayName,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: Colors.white.withValues(alpha: 0.9),
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Row(
-                                        children: [
-                                          if (!isFile) ...[  
-                                            Icon(
-                                              Icons.link,
-                                              size: 12,
-                                              color: const Color(0xFF94A3B8).withValues(alpha: 0.6),
-                                            ),
-                                            const SizedBox(width: 4),
-                                          ],
-                                          Expanded(
-                                            child: Text(
-                                              displayUrl,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                color: const Color(0xFF94A3B8)
-                                                    .withValues(alpha: 0.7),
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w300,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.copy_outlined,
-                                  color: const Color(0xFF94A3B8).withValues(alpha: 0.7),
-                                  size: 16,
-                                ),
-                              ],
+                                ],
                               ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 33),
+                        _buildButton(
+                          text: _isUploading ? 'Uploading...' : 'Select Files',
+                          onPressed: _isUploading ? null : _pickAndUploadFiles,
+                          isLoading: _isUploading,
+                          progress: _isUploading ? _uploadProgress : null,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Shorten URL Card
+                  _buildCard(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            _buildIcon(
+                              isUploading: false,
+                              defaultIcon: Icons.link_rounded,
+                            ),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Shorten URL',
+                                    style: TextStyle(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.91),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Create short links for sharing',
+                                    style: TextStyle(
+                                      color: const Color(0xFF94A3B8)
+                                          .withValues(alpha: 0.72),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 28),
+                        MinimalTextField(
+                          controller: _urlController,
+                          placeholder: 'Enter or paste your URL',
+                          icon: Icons.link,
+                          showLabel: false,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _shortenUrl(),
+                          keyboardType: TextInputType.url,
+                        ),
+                        const SizedBox(height: 20),
+                        MinimalTextField(
+                          controller: _customSlugController,
+                          placeholder: 'Enter custom slug (optional)',
+                          icon: Icons.tag,
+                          showLabel: false,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _shortenUrl(),
+                        ),
+                        const SizedBox(height: 31),
+                        _buildButton(
+                          text: _isUrlShortening
+                              ? 'Creating short link...'
+                              : 'Shorten URL',
+                          onPressed: _isUrlShortening ? null : _shortenUrl,
+                          isLoading: _isUrlShortening,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // History section with max 2 items
+                  if (_uploadHistory.isNotEmpty) ...[
+                    const SizedBox(height: 30),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.history,
+                          color: const Color(0xFF94A3B8).withValues(alpha: 0.7),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Recent Activity',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () async {
+                            await _activityService.clearActivities();
+                            await _loadActivities();
+                          },
+                          child: Text(
+                            'Clear All',
+                            style: TextStyle(
+                              color: const Color(0xFF1976D2)
+                                  .withValues(alpha: 0.8),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Show max 100 recent items
+                    ...List.generate(
+                      _uploadHistory.length > 100 ? 100 : _uploadHistory.length,
+                      (index) {
+                        final item = _uploadHistory[index];
+                        final isFile = item['type'] == 'file_upload';
+                        final isUrlShortening =
+                            item['type'] == 'url_shortening';
 
-              const SizedBox(height: 24), // Minimal bottom padding
-            ],
+                        String displayUrl;
+                        String displayName;
+
+                        if (isFile) {
+                          displayUrl = item['files']?[0]?['url'] ?? 'Unknown';
+                          displayName = item['files']?[0]?['name'] ?? 'File';
+                        } else if (isUrlShortening) {
+                          displayUrl = item['url'] ?? 'Unknown';
+                          displayName =
+                              item['originalUrl'] ?? item['vanity'] ?? 'URL';
+                        } else {
+                          // Legacy format fallback
+                          displayUrl = item['files']?[0]?['url'] ??
+                              item['url'] ??
+                              'Unknown';
+                          displayName = item['files']?[0]?['name'] ??
+                              item['vanity'] ??
+                              'URL';
+                        }
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: Slidable(
+                            startActionPane: ActionPane(
+                              motion: const ScrollMotion(),
+                              children: [
+                                SlidableAction(
+                                  onPressed: (_) =>
+                                      _setRecentItemPassword(item),
+                                  backgroundColor: Colors.blue.shade600,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.lock_outline,
+                                  label: 'Protect',
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ],
+                            ),
+                            endActionPane: ActionPane(
+                              motion: const ScrollMotion(),
+                              children: [
+                                SlidableAction(
+                                  onPressed: (_) => _deleteRecentItem(item),
+                                  backgroundColor: Colors.red.shade600,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.delete,
+                                  label: 'Delete',
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ],
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.03),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.08),
+                                  width: 0.5,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(12),
+                                child: InkWell(
+                                  onTap: () => _copyToClipboard(displayUrl),
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 32,
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF1976D2)
+                                                .withValues(alpha: 0.15),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: const Color(0xFF1976D2)
+                                                  .withValues(alpha: 0.3),
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: Icon(
+                                            isFile
+                                                ? Icons.file_present
+                                                : Icons.link,
+                                            color: const Color(0xFF1976D2)
+                                                .withValues(alpha: 0.8),
+                                            size: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                displayName,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.9),
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Row(
+                                                children: [
+                                                  if (!isFile) ...[
+                                                    Icon(
+                                                      Icons.link,
+                                                      size: 12,
+                                                      color: const Color(
+                                                              0xFF94A3B8)
+                                                          .withValues(
+                                                              alpha: 0.6),
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                  ],
+                                                  Expanded(
+                                                    child: Text(
+                                                      displayUrl,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        color: const Color(
+                                                                0xFF94A3B8)
+                                                            .withValues(
+                                                                alpha: 0.7),
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w300,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.copy_outlined,
+                                          color: const Color(0xFF94A3B8)
+                                              .withValues(alpha: 0.7),
+                                          size: 16,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+
+                  const SizedBox(height: 24), // Minimal bottom padding
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
           // Upload queue overlay
           Positioned(
             bottom: 0,
@@ -1160,7 +1195,6 @@ class _HomeScreenState extends State<HomeScreen> {
       // FAB removed - Library screen disabled
     );
   }
-
 
   Widget _buildCard({required Widget child}) {
     return Container(
@@ -1209,7 +1243,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   Widget _buildButton({
     required String text,
     required VoidCallback? onPressed,
@@ -1236,7 +1269,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 44,
-                  backgroundColor: const Color(0xFF1976D2).withValues(alpha: 0.1),
+                  backgroundColor:
+                      const Color(0xFF1976D2).withValues(alpha: 0.1),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     const Color(0xFF1976D2).withValues(alpha: 0.25),
                   ),
@@ -1267,15 +1301,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: const Color(0xFF1976D2).withValues(alpha: 0.88),
+                          color:
+                              const Color(0xFF1976D2).withValues(alpha: 0.88),
                         ),
                       )
                     : Text(
-                        progress != null 
-                          ? '${(progress * 100).toStringAsFixed(0)}%'
-                          : text,
+                        progress != null
+                            ? '${(progress * 100).toStringAsFixed(0)}%'
+                            : text,
                         style: TextStyle(
-                          color: const Color(0xFF1976D2).withValues(alpha: 0.88),
+                          color:
+                              const Color(0xFF1976D2).withValues(alpha: 0.88),
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),
@@ -1395,15 +1431,16 @@ class _ClipboardOverlayState extends State<_ClipboardOverlay>
                     child: Text(
                       'Link Copied!',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.none,
-                      ) ?? TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.none,
-                      ),
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.none,
+                              ) ??
+                          TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.none,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -1429,7 +1466,8 @@ class _HeaderNotificationOverlay extends StatefulWidget {
   });
 
   @override
-  State<_HeaderNotificationOverlay> createState() => _HeaderNotificationOverlayState();
+  State<_HeaderNotificationOverlay> createState() =>
+      _HeaderNotificationOverlayState();
 }
 
 class _HeaderNotificationOverlayState extends State<_HeaderNotificationOverlay>
@@ -1518,15 +1556,16 @@ class _HeaderNotificationOverlayState extends State<_HeaderNotificationOverlay>
                     child: Text(
                       widget.message,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.none,
-                      ) ?? const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.none,
-                      ),
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.none,
+                              ) ??
+                          const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.none,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                   ),

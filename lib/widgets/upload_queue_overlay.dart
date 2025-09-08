@@ -6,7 +6,7 @@ import '../core/service_locator.dart';
 
 class UploadQueueOverlay extends StatefulWidget {
   final Widget child;
-  
+
   const UploadQueueOverlay({
     super.key,
     required this.child,
@@ -75,10 +75,12 @@ class _UploadQueueOverlayState extends State<UploadQueueOverlay>
   }
 
   Widget _buildUploadQueue(AppState appState) {
-    final activeTasks = appState.uploadTasks.where((task) =>
-        task.status == UploadStatus.uploading ||
-        task.status == UploadStatus.pending ||
-        task.status == UploadStatus.paused).toList();
+    final activeTasks = appState.uploadTasks
+        .where((task) =>
+            task.status == UploadStatus.uploading ||
+            task.status == UploadStatus.pending ||
+            task.status == UploadStatus.paused)
+        .toList();
 
     if (activeTasks.isEmpty && !appState.uploadQueueVisible) {
       return const SizedBox.shrink();

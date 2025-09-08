@@ -9,15 +9,15 @@ class AppState extends ChangeNotifier {
   String? _username;
   String? _ziplineUrl;
   bool _isAuthenticated = false;
-  
+
   // Upload state
   List<UploadTask> _uploadTasks = [];
   bool _uploadQueueVisible = false;
-  
+
   // UI state
   bool _isLoading = false;
   String? _errorMessage;
-  
+
   // Stream subscription for proper disposal
   StreamSubscription<List<UploadTask>>? _queueSubscription;
 
@@ -29,12 +29,11 @@ class AppState extends ChangeNotifier {
   bool get uploadQueueVisible => _uploadQueueVisible;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  
+
   // Check if there are active uploads
-  bool get hasActiveUploads => _uploadTasks.any((task) => 
-    task.status == UploadStatus.uploading || 
-    task.status == UploadStatus.pending
-  );
+  bool get hasActiveUploads => _uploadTasks.any((task) =>
+      task.status == UploadStatus.uploading ||
+      task.status == UploadStatus.pending);
 
   AppState() {
     _initializeState();
@@ -45,12 +44,12 @@ class AppState extends ChangeNotifier {
     final queueService = locator.uploadQueue;
     _queueSubscription = queueService.queueStream.listen((tasks) {
       _uploadTasks = tasks;
-      
+
       // Auto-show queue when uploads are active
       if (hasActiveUploads && !_uploadQueueVisible) {
         _uploadQueueVisible = true;
       }
-      
+
       notifyListeners();
     });
   }

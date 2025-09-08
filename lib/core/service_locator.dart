@@ -19,13 +19,13 @@ void setupServiceLocator() {
   locator.registerSingleton<SharingService>(SharingService());
   locator.registerSingleton<UploadQueueService>(UploadQueueService());
   locator.registerSingleton<ConnectivityService>(ConnectivityService());
-  
+
   // Register lazy singletons (created on first use)
   locator.registerLazySingleton<AuthService>(() => AuthService());
   locator.registerLazySingleton<OAuthService>(() => OAuthService());
   locator.registerLazySingleton<BiometricService>(() => BiometricService());
   locator.registerLazySingleton<IntentService>(() => IntentService());
-  
+
   // Register factory services (new instance each time)
   locator.registerFactory<FileUploadService>(() => FileUploadService());
 }

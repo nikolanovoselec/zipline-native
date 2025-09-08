@@ -8,7 +8,7 @@ class AppButton extends StatelessWidget {
   final double? progress;
   final IconData? icon;
   final double height;
-  
+
   const AppButton({
     super.key,
     required this.text,
@@ -42,7 +42,8 @@ class AppButton extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: height,
-                  backgroundColor: const Color(0xFF1976D2).withValues(alpha: 0.1),
+                  backgroundColor:
+                      const Color(0xFF1976D2).withValues(alpha: 0.1),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     const Color(0xFF1976D2).withValues(alpha: 0.25),
                   ),
@@ -89,7 +90,8 @@ class AppButton extends StatelessWidget {
                             Icon(
                               icon,
                               color: isPrimary
-                                  ? const Color(0xFF1976D2).withValues(alpha: 0.88)
+                                  ? const Color(0xFF1976D2)
+                                      .withValues(alpha: 0.88)
                                   : Colors.white.withValues(alpha: 0.7),
                               size: 18,
                             ),
@@ -101,7 +103,8 @@ class AppButton extends StatelessWidget {
                                 : text,
                             style: TextStyle(
                               color: isPrimary
-                                  ? const Color(0xFF1976D2).withValues(alpha: 0.88)
+                                  ? const Color(0xFF1976D2)
+                                      .withValues(alpha: 0.88)
                                   : Colors.white.withValues(alpha: 0.7),
                               fontSize: 14,
                               fontWeight: FontWeight.w500,

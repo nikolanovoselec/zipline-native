@@ -357,7 +357,8 @@ class _LoginScreenState extends State<LoginScreen>
                             width: 72,
                             height: 72,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+                              color: const Color(0xFF3B82F6)
+                                  .withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -380,7 +381,8 @@ class _LoginScreenState extends State<LoginScreen>
                           Text(
                             'Sign in to your server',
                             style: TextStyle(
-                              color: const Color(0xFF94A3B8).withValues(alpha: 0.77),
+                              color: const Color(0xFF94A3B8)
+                                  .withValues(alpha: 0.77),
                               fontSize: 14,
                               fontWeight: FontWeight.w300,
                             ),
@@ -476,8 +478,11 @@ class _LoginScreenState extends State<LoginScreen>
                                             placeholder: '000000',
                                             icon: Icons.security_outlined,
                                             keyboardType: TextInputType.number,
-                                            textInputAction: TextInputAction.done,
-                                            autofillHints: const [AutofillHints.oneTimeCode],
+                                            textInputAction:
+                                                TextInputAction.done,
+                                            autofillHints: const [
+                                              AutofillHints.oneTimeCode
+                                            ],
                                             onFieldSubmitted: (_) =>
                                                 !_isLoading ? _login() : null,
                                           ),
@@ -523,13 +528,15 @@ class _LoginScreenState extends State<LoginScreen>
                           duration: const Duration(milliseconds: 200),
                           child: Icon(
                             Icons.expand_more,
-                            color: const Color(0xFF94A3B8).withValues(alpha: 0.7),
+                            color:
+                                const Color(0xFF94A3B8).withValues(alpha: 0.7),
                           ),
                         ),
                         label: Text(
                           _showAdvanced ? 'Hide Advanced' : 'Advanced Settings',
                           style: TextStyle(
-                            color: const Color(0xFF94A3B8).withValues(alpha: 0.7),
+                            color:
+                                const Color(0xFF94A3B8).withValues(alpha: 0.7),
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
@@ -593,7 +600,8 @@ class _LoginScreenState extends State<LoginScreen>
                                         MinimalTextField(
                                           controller: _cfClientSecretController,
                                           label: 'CF-Access-Client-Secret',
-                                          placeholder: 'Enter your Client Secret',
+                                          placeholder:
+                                              'Enter your Client Secret',
                                           icon: Icons.key_outlined,
                                           obscureText: true,
                                         ),
