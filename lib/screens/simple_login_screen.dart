@@ -571,43 +571,7 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen>
       body: SafeArea(
         child: Stack(
           children: [
-            // Settings button in top-right corner with increased touch area
-            Positioned(
-              top: 18, // Adjusted to account for padding
-              right: 18, // Adjusted to account for padding
-              child: GestureDetector(
-                onTap: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
-                  _loadSavedCredentials();
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(
-                      6), // Adds 6px touch area around icon
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.05),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        width: 0.3,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.settings_outlined,
-                      color: const Color(0xFF94A3B8).withValues(alpha: 0.7),
-                      size: 16,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Main content
+            // Main content (moved to first position so Settings button renders on top)
             Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -804,6 +768,49 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen>
                           ],
                         ],
                       ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Settings button in top-right corner (moved to last position for proper z-index)
+            Positioned(
+              top: 12, // Adjusted for better alignment
+              right: 12, // Adjusted for better alignment
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque, // Ensures all taps are captured
+                onTap: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                  _loadSavedCredentials();
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12), // Increased from 6px to 12px for better touch area
+                  child: Container(
+                    width: 40, // Increased from 36px to 40px
+                    height: 40, // Increased from 36px to 40px
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08), // Slightly more visible
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2), // More visible border
+                        width: 0.5, // Slightly thicker border
+                      ),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.settings_outlined,
+                      color: const Color(0xFF94A3B8).withValues(alpha: 0.9), // More visible icon
+                      size: 20, // Increased from 16px to 20px
                     ),
                   ),
                 ),

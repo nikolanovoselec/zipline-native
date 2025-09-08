@@ -779,35 +779,43 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       Row(
                         children: [
-                          // Open in browser button
+                          // Open in browser button with improved touch handling
                           GestureDetector(
+                            behavior: HitTestBehavior.opaque, // Ensures all taps are captured
                             onTap: _openServerInBrowser,
                             child: Container(
-                              padding: const EdgeInsets.all(
-                                  6), // Adds 6px touch area around icon
+                              padding: const EdgeInsets.all(10), // Increased from 6px to 10px for better touch area
                               child: Container(
-                                width: 36,
-                                height: 36,
+                                width: 40, // Increased from 36px to 40px
+                                height: 40, // Increased from 36px to 40px
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.05),
+                                  color: Colors.white.withValues(alpha: 0.08), // Slightly more visible
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.15),
-                                    width: 0.3,
+                                    color: Colors.white.withValues(alpha: 0.2), // More visible border
+                                    width: 0.5, // Slightly thicker border
                                   ),
                                   shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.2),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
                                 child: Icon(
                                   Icons.open_in_browser_outlined,
                                   color: const Color(0xFF94A3B8)
-                                      .withValues(alpha: 0.7),
-                                  size: 16,
+                                      .withValues(alpha: 0.9), // More visible icon
+                                  size: 20, // Increased from 16px to 20px
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          // Settings button with increased touch area
+                          const SizedBox(width: 4), // Reduced from 8px to 4px to account for increased padding
+                          // Settings button with improved touch handling
                           GestureDetector(
+                            behavior: HitTestBehavior.opaque, // Ensures all taps are captured
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -816,24 +824,30 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             },
                             child: Container(
-                              padding: const EdgeInsets.all(
-                                  6), // Adds 6px touch area around icon
+                              padding: const EdgeInsets.all(10), // Increased from 6px to 10px for better touch area
                               child: Container(
-                                width: 36,
-                                height: 36,
+                                width: 40, // Increased from 36px to 40px
+                                height: 40, // Increased from 36px to 40px
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.05),
+                                  color: Colors.white.withValues(alpha: 0.08), // Slightly more visible
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.15),
-                                    width: 0.3,
+                                    color: Colors.white.withValues(alpha: 0.2), // More visible border
+                                    width: 0.5, // Slightly thicker border
                                   ),
                                   shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.2),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
                                 child: Icon(
                                   Icons.settings_outlined,
                                   color: const Color(0xFF94A3B8)
-                                      .withValues(alpha: 0.7),
-                                  size: 16,
+                                      .withValues(alpha: 0.9), // More visible icon
+                                  size: 20, // Increased from 16px to 20px
                                 ),
                               ),
                             ),
