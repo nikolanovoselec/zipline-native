@@ -69,8 +69,8 @@ jobs:
         
         ### Build from Source
         \`\`\`bash
-        git clone https://github.com/nikolanovoselec/zipline-native-client.git
-        cd zipline-native-client
+        git clone https://github.com/nikolanovoselec/zipline-native.git
+        cd zipline-native
         flutter pub get
         flutter build apk --release  # For Android
         flutter build ios --release  # For iOS
@@ -95,7 +95,7 @@ jobs:
         
         ## Support
         
-        - Report issues: [GitHub Issues](https://github.com/nikolanovoselec/zipline-native-client/issues)
+        - Report issues: [GitHub Issues](https://github.com/nikolanovoselec/zipline-native/issues)
         - Documentation: See README.md for complete setup guide
         EOF
         
