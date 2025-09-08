@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    
+    <!-- Outer ring -->
+    <path
+        android:pathData="M60,20 A40,40 0 1,1 59.99,20"
+        android:strokeWidth="2"
+        android:strokeColor="@color/tech_cyan"
+        android:fillColor="@color/transparent"
+        android:strokeLineCap="round" />
+    
+    <!-- Inner geometric shape -->
+    <path
+        android:pathData="M60,35 L75,50 L75,70 L60,85 L45,70 L45,50 Z"
+        android:fillColor="@color/zipline_primary"
+        android:strokeWidth="1"
+        android:strokeColor="@color/tech_cyan" />
+    
+    <!-- Central dot -->
+    <circle
+        android:centerX="60"
+        android:centerY="60"
+        android:radius="4dp"
+        android:fillColor="@color/tech_cyan" />
+    
+    <!-- Tech lines -->
+    <path
+        android:pathData="M30,60 L50,60"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/tech_cyan"
+        android:strokeLineCap="round" />
+    
+    <path
+        android:pathData="M70,60 L90,60"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/tech_cyan"
+        android:strokeLineCap="round" />
+    
+    <path
+        android:pathData="M60,30 L60,50"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/tech_cyan"
+        android:strokeLineCap="round" />
+    
+    <path
+        android:pathData="M60,70 L60,90"
+        android:strokeWidth="1.5"
+        android:strokeColor="@color/tech_cyan"
+        android:strokeLineCap="round" />
+</vector>

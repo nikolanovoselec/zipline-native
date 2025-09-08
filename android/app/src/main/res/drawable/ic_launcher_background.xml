@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Solid dark background -->
+    <path android:pathData="M0,0h108v108h-108z" android:fillColor="#0D1B2A"/>
+    
+    <!-- Subtle radial gradient overlay for depth -->
+    <circle android:centerX="54" android:centerY="54" android:radius="54dp" 
+            android:fillColor="#1B263B" android:alpha="0.3"/>
+    
+    <!-- Central highlight circle for icon focus -->
+    <circle android:centerX="54" android:centerY="54" android:radius="36dp" 
+            android:fillColor="#2D3748" android:alpha="0.2"/>
+    
+</vector>

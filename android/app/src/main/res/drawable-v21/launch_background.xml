@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Zipline Futuristic Launch Screen (API 21+) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background gradient -->
+    <item android:drawable="@drawable/futuristic_gradient" />
+    
+    <!-- Logo -->
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/zipline_logo" />
+    </item>
+    
+    <!-- Subtle glow effect for modern devices -->
+    <item android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="#1A00E5FF" />
+            <size android:width="200dp" android:height="200dp" />
+        </shape>
+    </item>
+</layer-list>

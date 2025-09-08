@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Example build script for Zipline Native Client
+# This shows all available build-time configuration options
+
+# Basic build (OAuth will use Zipline server domain)
+flutter build apk --release --split-per-abi
+
+# Build with custom OAuth redirect URL
+# Use this if your Cloudflare Worker is on a different domain
+flutter build apk --release --split-per-abi \
+  --dart-define=OAUTH_REDIRECT_URL=https://oauth-worker.example.com/app/oauth-redirect
+
+# Build universal APK (all architectures in one file)
+flutter build apk --release
+
+# Build for specific architecture only
+flutter build apk --release --target-platform android-arm64
+
+# Debug build with custom OAuth URL
+flutter build apk --debug \
+  --dart-define=OAUTH_REDIRECT_URL=https://oauth-test.example.com/app/oauth-redirect
+
+# Available build-time variables:
+# OAUTH_REDIRECT_URL - Custom OAuth redirect URL (optional)
+#                      Default: https://[zipline-domain]/app/oauth-redirect
+#                      Example: https://oauth.example.com/app/oauth-redirect

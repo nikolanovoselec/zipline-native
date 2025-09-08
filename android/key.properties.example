@@ -1,0 +1,4 @@
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upload
+storeFile=/home/YOUR_USERNAME/.android-keys/zipline-native-client/zipline-release-key.jks

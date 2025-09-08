@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    
+    <!-- Background -->
+    <path android:pathData="M0,0h512v512h-512z" 
+          android:fillColor="#0D1B2A"/>
+    
+    <!-- Glow circle behind rocket -->
+    <path android:pathData="M256,256 m-180,0 a180,180 0 1,0 360,0 a180,180 0 1,0 -360,0"
+          android:fillColor="#00E5FF" 
+          android:alpha="0.1"/>
+    
+    <!-- Rocket body -->
+    <path android:pathData="M256,120 L306,220 L286,230 L286,330 L226,330 L226,230 L206,220 Z"
+          android:fillColor="#00E5FF"/>
+    
+    <!-- Rocket flames -->
+    <path android:pathData="M226,330 L206,380 L236,360 L256,390 L276,360 L306,380 L286,330"
+          android:fillColor="#FF6B35" 
+          android:alpha="0.8"/>
+    
+    <!-- Rocket window -->
+    <path android:pathData="M256,200 m-15,0 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0"
+          android:fillColor="#0D1B2A"/>
+</vector>

@@ -1,0 +1,180 @@
+name: Release Management
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v0.1.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create_release.outputs.id }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Validate version format
+      run: |
+        if [[ ! "${{ inputs.version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "❌ Invalid version format. Use vX.Y.Z (e.g., v0.1.0)"
+          exit 1
+        fi
+        
+    - name: Check if release exists
+      run: |
+        if gh release view "${{ inputs.version }}" >/dev/null 2>&1; then
+          echo "❌ Release ${{ inputs.version }} already exists"
+          exit 1
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        VERSION="${{ inputs.version }}"
+        CLEAN_VERSION="${VERSION#v}"
+        
+        cat > release_notes.md << EOF
+        # Zipline Native Client ${VERSION}
+        
+        ## What's New
+        
+        This release includes the latest features and improvements to the Zipline Native Client mobile application.
+        
+        ## Download
+        
+        - **Android**: Download \`zipline-${VERSION}.apk\` below
+        - **iOS**: Build from source (requires Xcode and Apple Developer account)
+        
+        ## Installation Instructions
+        
+        ### Android APK
+        1. Download the APK file from the assets below
+        2. Enable "Install from unknown sources" in your device settings
+        3. Install the APK file
+        4. Configure your Zipline server URL in Settings
+        
+        ### Build from Source
+        \`\`\`bash
+        git clone https://github.com/nikolanovoselec/zipline-native-client.git
+        cd zipline-native-client
+        flutter pub get
+        flutter build apk --release  # For Android
+        flutter build ios --release  # For iOS
+        \`\`\`
+        
+        ## Configuration
+        
+        1. Open the app and navigate to Settings
+        2. Enter your Zipline server URL
+        3. Configure Cloudflare Access credentials if required
+        4. Return to home screen and login with your credentials
+        
+        ## System Requirements
+        
+        - **Android**: 5.0+ (API level 21+)
+        - **iOS**: 11.0+ (when available)
+        - **Zipline Server**: v3.0+ with CORS enabled
+        
+        ## Changelog
+        
+        See [CHANGELOG.md](CHANGELOG.md) for detailed changes.
+        
+        ## Support
+        
+        - Report issues: [GitHub Issues](https://github.com/nikolanovoselec/zipline-native-client/issues)
+        - Documentation: See README.md for complete setup guide
+        EOF
+        
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ inputs.version }}
+        release_name: ${{ inputs.version }}
+        body_path: release_notes.md
+        draft: false
+        prerelease: ${{ inputs.prerelease }}
+        
+  build-assets:
+    name: Build Release Assets
+    needs: create-release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Java 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.35.3'
+        channel: 'stable'
+        
+    - name: Enable Flutter platforms
+      run: |
+        flutter config --enable-web
+        flutter config --enable-linux-desktop
+        
+    - name: Get dependencies
+      run: flutter pub get
+      
+    - name: Build release APK
+      run: flutter build apk --release --verbose
+      
+    - name: Upload APK to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: build/app/outputs/flutter-apk/app-release.apk
+        asset_name: zipline-${{ inputs.version }}.apk
+        asset_content_type: application/vnd.android.package-archive
+        
+    - name: Create build metadata
+      run: |
+        cat > build-metadata.json << EOF
+        {
+          "version": "${{ inputs.version }}",
+          "build_date": "$(date -u --iso-8601=seconds)",
+          "commit_hash": "${{ github.sha }}",
+          "flutter_version": "$(flutter --version | head -n 1 | cut -d ' ' -f 2)",
+          "dart_version": "$(dart --version | cut -d ' ' -f 4)",
+          "build_type": "release",
+          "platform": "android",
+          "min_sdk": "21",
+          "target_sdk": "34"
+        }
+        EOF
+        
+    - name: Upload build metadata
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: build-metadata.json
+        asset_name: build-metadata.json
+        asset_content_type: application/json

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Zipline Brand Colors -->
+    <color name="zipline_primary">#1976D2</color>
+    <color name="zipline_primary_dark">#115293</color>
+    <color name="zipline_secondary">#0D47A1</color>
+    <color name="zipline_accent">#42A5F5</color>
+    
+    <!-- Futuristic Gradient Colors -->
+    <color name="gradient_start">#0D1B2A</color>
+    <color name="gradient_middle">#1B263B</color>
+    <color name="gradient_end">#415A77</color>
+    
+    <!-- Accent Colors -->
+    <color name="tech_cyan">#00E5FF</color>
+    <color name="soft_white">#F8F9FA</color>
+    <color name="transparent">#00000000</color>
+</resources>
