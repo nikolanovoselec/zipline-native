@@ -29,6 +29,9 @@ jobs:
         flutter-version: '3.35.3'
         channel: 'stable'
         
+    - name: Accept Android licenses
+      run: yes | flutter doctor --android-licenses || true
+        
     - name: Enable Flutter platforms
       run: |
         flutter config --enable-web
@@ -37,17 +40,22 @@ jobs:
     - name: Get Flutter dependencies
       run: flutter pub get
       
+    - name: Flutter doctor
+      run: flutter doctor -v
+      
     - name: Run Flutter tests
       run: flutter test --timeout 30s || echo "Tests have known timer issues but build continues"
       continue-on-error: true
       
     - name: Build APK (Debug)
       if: github.event_name != 'release'
-      run: flutter build apk --debug --verbose
+      run: flutter build apk --debug
+      timeout-minutes: 15
       
     - name: Build APK (Release)
       if: github.event_name == 'release'
-      run: flutter build apk --release --verbose
+      run: flutter build apk --release
+      timeout-minutes: 15
       
     - name: Upload APK artifact (Debug)
       if: github.event_name != 'release'
