@@ -391,10 +391,13 @@ class _HomeScreenState extends State<HomeScreen> {
           _isUrlShortening = false;
         });
 
-        // Clipboard notification will be shown by the service
-        HapticFeedback.lightImpact();
-        locator.debug.log(
-            'URL', 'URL shortening success, clipboard notification triggered');
+        final shareUrl =
+            (result['short'] ?? result['url']) as String? ?? normalizedUrl;
+        await _copyShareAndNotify(
+          shareUrl,
+          displayName: normalizedUrl,
+        );
+        locator.debug.log('URL', 'URL shortening success, share sheet invoked');
       } else if (result != null && result['success'] == false) {
         // Handle API error response
         locator.debug
