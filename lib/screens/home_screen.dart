@@ -478,6 +478,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } finally {
       _shareSheetActive = false;
+      locator.debug.log(_shareLogTag, 'Share sheet state reset');
     }
   }
 
