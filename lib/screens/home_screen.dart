@@ -1174,7 +1174,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.transparent,
                                 borderRadius: BorderRadius.circular(12),
                                 child: InkWell(
-                                  onTap: () => _copyToClipboard(displayUrl),
+                                  onTap: () => _handleRecentItemShare(
+                                    displayUrl,
+                                    displayName: displayName,
+                                  ),
                                   borderRadius: BorderRadius.circular(12),
                                   child: Padding(
                                     padding: const EdgeInsets.all(16),
@@ -1253,11 +1256,27 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ],
                                           ),
                                         ),
-                                        Icon(
-                                          Icons.copy_outlined,
-                                          color: const Color(0xFF94A3B8)
-                                              .withValues(alpha: 0.7),
-                                          size: 16,
+                                        Container(
+                                          width: 32,
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white
+                                                .withValues(alpha: 0.04),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.08),
+                                              width: 0.8,
+                                            ),
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Icon(
+                                            Icons.ios_share,
+                                            color: const Color(0xFF94A3B8)
+                                                .withValues(alpha: 0.8),
+                                            size: 16,
+                                          ),
                                         ),
                                       ],
                                     ),
