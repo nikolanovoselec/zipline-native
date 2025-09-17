@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const String _readyToShareMessage = 'Ready for sharing!';
   static const Duration _shareSheetDelay = Duration(seconds: 2);
   static const double _shareChipSize = 32.0;
+  static const double _bannerSecondaryAlpha = 0.85;
 
   final AuthService _authService = locator.auth;
   final FileUploadService _uploadService = locator.fileUpload;
@@ -1682,7 +1683,8 @@ class _HeaderNotificationOverlayState extends State<_HeaderNotificationOverlay>
                     gradient: LinearGradient(
                       colors: [
                         widget.color,
-                        widget.color.withValues(alpha: 0.85),
+                        widget.color
+                            .withValues(alpha: _bannerSecondaryAlpha),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
