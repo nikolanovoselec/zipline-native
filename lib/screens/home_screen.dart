@@ -442,6 +442,30 @@ class _HomeScreenState extends State<HomeScreen> {
     HapticFeedback.lightImpact();
   }
 
+  Future<void> _openShareSheet(String url, {String? subject}) async {
+    if (_shareSheetActive) return;
+    _shareSheetActive = true;
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          text: url,
+          subject: subject,
+        ),
+      );
+    } catch (e, stackTrace) {
+      locator.debug.logError('SHARE', 'Failed to open share sheet',
+          error: e, stackTrace: stackTrace);
+      if (mounted) {
+        _showHeaderNotification(
+          'Unable to open share sheet',
+          Colors.red.shade600,
+        );
+      }
+    } finally {
+      _shareSheetActive = false;
+    }
+  }
+
   Future<void> _openServerInBrowser() async {
     try {
       final credentials = await _authService.getCredentials();
