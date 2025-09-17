@@ -513,6 +513,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!mounted) return;
 
+    locator.debug.log('SHARE', 'Prepared multiple upload links', data: {
+      'linkCount': successful.fold<int>(0, (count, entry) {
+        final files = entry['files'];
+        if (files is List) {
+          return count + files.length;
+        }
+        return count;
+      }),
+    });
+
     _showHeaderNotification(_readyToShareMessage, Colors.green.shade600);
   }
 
