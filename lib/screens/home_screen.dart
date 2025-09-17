@@ -436,8 +436,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _copyToClipboard(String text) {
-    Clipboard.setData(ClipboardData(text: text));
+  Future<void> _copyToClipboard(String text) async {
+    await Clipboard.setData(ClipboardData(text: text));
     _showClipboardToast();
     HapticFeedback.lightImpact();
   }
