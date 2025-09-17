@@ -179,18 +179,6 @@ class FileUploadService {
         debugService.logUpload('Upload completed successfully',
             data: uploadResult);
 
-        // Automatically copy URL to clipboard
-        final files = uploadResult['files'] as List?;
-        if (files != null && files.isNotEmpty) {
-          final file = files[0] as Map<String, dynamic>?;
-          final uploadedUrl = file?['url'] as String?;
-          if (uploadedUrl != null) {
-            await _copyToClipboard(uploadedUrl);
-            debugService.logUpload('URL copied to clipboard',
-                data: {'url': uploadedUrl});
-          }
-        }
-
         return uploadResult;
       } else {
         debugService.logUpload('Upload failed with HTTP error',
