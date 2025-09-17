@@ -466,6 +466,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _copyShareAndNotify(
+    String url, {
+    String? displayName,
+    bool openShareSheet = true,
+  }) async {
+    await _copyToClipboard(url);
+
+    if (mounted) {
+      _showHeaderNotification('Ready for sharing!', Colors.green.shade600);
+    }
+
+    if (openShareSheet) {
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) {
+        await _openShareSheet(url, subject: displayName);
+      }
+    }
+  }
+
   Future<void> _openServerInBrowser() async {
     try {
       final credentials = await _authService.getCredentials();
