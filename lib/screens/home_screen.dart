@@ -18,8 +18,6 @@ import '../widgets/upload_queue_widget.dart';
 import 'settings_screen.dart';
 import '../widgets/common/minimal_text_field.dart';
 
-const double _bannerSecondaryAlpha = 0.85;
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -1637,6 +1635,7 @@ class _HeaderNotificationOverlay extends StatefulWidget {
 
 class _HeaderNotificationOverlayState extends State<_HeaderNotificationOverlay>
     with SingleTickerProviderStateMixin {
+  static const double _bannerSecondaryAlpha = 0.85;
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
