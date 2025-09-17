@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:path/path.dart' as path;
 import 'package:mime/mime.dart';
-import 'package:flutter/services.dart';
 import 'auth_service.dart';
 import 'debug_service.dart';
 import 'upload_queue_service.dart';
@@ -15,8 +14,6 @@ class FileUploadService {
   final AuthService _authService = AuthService();
   final UploadQueueService _queueService = UploadQueueService();
   late final Dio _dio; // HTTP client with progress tracking support
-
-  Function()? onClipboardCopy;
 
   FileUploadService() {
     _dio = Dio(BaseOptions(
