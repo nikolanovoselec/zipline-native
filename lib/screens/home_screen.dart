@@ -41,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _uploadHistory = [];
   String? _ziplineUrl;
   String? _username;
+  bool _shareSheetActive = false;
 
   @override
   void initState() {
