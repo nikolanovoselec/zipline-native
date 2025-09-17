@@ -496,11 +496,6 @@ class FileUploadService {
     return results;
   }
 
-  Future<void> _copyToClipboard(String text) async {
-    await Clipboard.setData(ClipboardData(text: text));
-    onClipboardCopy?.call();
-  }
-
   Future<List<Map<String, dynamic>>> fetchUserFiles() async {
     final debugService = DebugService();
 
