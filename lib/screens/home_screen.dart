@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const double _shareChipSize = 32.0;
   static const double _bannerSecondaryAlpha = 0.85;
   static const String _shareChipLabel = 'Share link';
+  static const String _shareLogTag = _shareLogTag;
 
   final AuthService _authService = locator.auth;
   final FileUploadService _uploadService = locator.fileUpload;
@@ -450,7 +451,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _openShareSheet(String url, {String? subject}) async {
     if (_shareSheetActive) {
-      locator.debug.log('SHARE', 'Share sheet already active, skipping');
+      locator.debug.log(_shareLogTag, 'Share sheet already active, skipping');
       return;
     }
     _shareSheetActive = true;
@@ -462,7 +463,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } catch (e, stackTrace) {
-      locator.debug.logError('SHARE', 'Failed to open share sheet',
+      locator.debug.logError(_shareLogTag, 'Failed to open share sheet',
           error: e,
           stackTrace: stackTrace,
           data: {
@@ -485,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> {
     String? displayName,
     bool openShareSheet = true,
   }) async {
-    locator.debug.log('SHARE', 'Copying link to clipboard', data: {
+    locator.debug.log(_shareLogTag, 'Copying link to clipboard', data: {
       'displayName': displayName,
       'url': url,
       'openShareSheet': openShareSheet,
@@ -500,10 +501,10 @@ class _HomeScreenState extends State<HomeScreen> {
       await Future.delayed(_shareSheetDelay);
       if (mounted) {
         await _openShareSheet(url, subject: displayName);
-        locator.debug.log('SHARE', 'Share sheet presented');
+        locator.debug.log(_shareLogTag, 'Share sheet presented');
       }
     } else {
-      locator.debug.log('SHARE', 'Share sheet suppressed for copy only');
+      locator.debug.log(_shareLogTag, 'Share sheet suppressed for copy only');
     }
   }
 
@@ -513,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (successful.isEmpty) {
       locator.debug
-          .log('SHARE', 'No successful uploads to process', level: 'DEBUG');
+          .log(_shareLogTag, 'No successful uploads to process', level: 'DEBUG');
       return;
     }
 
@@ -524,7 +525,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final url = file?['url'] as String?;
         final name = file?['name'] as String?;
         if (url != null) {
-          locator.debug.log('SHARE', 'Processed single upload result', data: {
+          locator.debug.log(_shareLogTag, 'Processed single upload result', data: {
             'displayName': name,
             'url': url,
           });
@@ -539,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!mounted) return;
 
-    locator.debug.log('SHARE', 'Prepared multiple upload links', data: {
+    locator.debug.log(_shareLogTag, 'Prepared multiple upload links', data: {
       'linkCount': successful.fold<int>(0, (count, entry) {
         final files = entry['files'];
         if (files is List) {
@@ -553,7 +554,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleRecentItemShare(String url, {String? displayName}) {
-    locator.debug.log('SHARE', 'Sharing recent item', data: {
+    locator.debug.log(_shareLogTag, 'Sharing recent item', data: {
       'displayName': displayName,
       'url': url,
     });
