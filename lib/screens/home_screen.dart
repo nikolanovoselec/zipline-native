@@ -517,6 +517,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleRecentItemShare(String url, {String? displayName}) {
+    locator.debug.log('SHARE', 'Sharing recent item', data: {
+      'displayName': displayName,
+      'url': url,
+    });
     unawaited(_copyShareAndNotify(
       url,
       displayName: displayName,
