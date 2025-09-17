@@ -444,7 +444,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _copyToClipboard(String text) async {
     await Clipboard.setData(ClipboardData(text: text));
-    _showClipboardToast();
     HapticFeedback.lightImpact();
   }
 
@@ -618,21 +617,6 @@ class _HomeScreenState extends State<HomeScreen> {
         Colors.red.shade600,
       );
     }
-  }
-
-  void _showClipboardToast() {
-    final overlay = Overlay.of(context);
-    late OverlayEntry overlayEntry;
-
-    overlayEntry = OverlayEntry(
-      builder: (context) => _ClipboardOverlay(
-        onComplete: () {
-          overlayEntry.remove();
-        },
-      ),
-    );
-
-    overlay.insert(overlayEntry);
   }
 
   void _showHeaderNotification(String message, Color color) {
@@ -1488,135 +1472,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _ClipboardOverlay extends StatefulWidget {
-  final VoidCallback onComplete;
-
-  const _ClipboardOverlay({required this.onComplete});
-
-  @override
-  State<_ClipboardOverlay> createState() => _ClipboardOverlayState();
-}
-
-class _ClipboardOverlayState extends State<_ClipboardOverlay>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Offset> _slideAnimation;
-  late Animation<double> _fadeAnimation;
-  // late Animation<double> _scaleAnimation; // Unused
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -1.0),
-      end: const Offset(0.0, 0.0),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    ));
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
-    ));
-
-    /*_scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.elasticOut,
-    ));*/
-
-    // Start the animation
-    _controller.forward();
-
-    // Auto-dismiss after 3 seconds
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) {
-        _controller.reverse().then((_) {
-          widget.onComplete();
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final overlayHeight = screenHeight * 0.101; // Increased by 30% from 0.078
-
-    return Positioned(
-      left: 0,
-      right: 0,
-      top: 0,
-      height: overlayHeight,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return SlideTransition(
-            position: _slideAnimation,
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Container(
-                width: double.infinity,
-                height: overlayHeight,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.green.shade600,
-                      Colors.green.shade500,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: SafeArea(
-                  bottom: false,
-                  child: Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.only(top: 8),
-                    child: Text(
-                      'Link Copied!',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                decoration: TextDecoration.none,
-                              ) ??
-                          TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.none,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
 class _HeaderNotificationOverlay extends StatefulWidget {
   final String message;
   final Color color;
@@ -1690,67 +1545,72 @@ class _HeaderNotificationOverlayState extends State<_HeaderNotificationOverlay>
     final screenHeight = mediaQuery.size.height;
     final overlayHeight =
         (screenHeight * 0.15).clamp(100.0, screenHeight * 0.35).toDouble();
+    final topInset = mediaQuery.padding.top;
 
     return Positioned(
       top: 0,
       left: 0,
       right: 0,
-      child: SafeArea(
-        bottom: false,
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Semantics(
-                  liveRegion: true,
-                  label: widget.message,
-                  child: Container(
-                    width: double.infinity,
-                    height: overlayHeight,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          widget.color,
-                          widget.color
-                              .withValues(alpha: _bannerSecondaryAlpha),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 32.0),
-                        child: Text(
-                          widget.message,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    decoration: TextDecoration.none,
-                                  ) ??
-                              const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w600,
-                                decoration: TextDecoration.none,
-                              ),
+      height: overlayHeight,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return SlideTransition(
+            position: _slideAnimation,
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: Semantics(
+                liveRegion: true,
+                label: widget.message,
+                child: Container(
+                  width: double.infinity,
+                  height: overlayHeight,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        widget.color,
+                        widget.color.withValues(
+                          alpha: _bannerSecondaryAlpha,
                         ),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: 32.0,
+                      right: 32.0,
+                      top: topInset + 12.0,
+                      bottom: 16.0,
+                    ),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        widget.message,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.none,
+                                ) ??
+                            const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.none,
+                            ),
                       ),
                     ),
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
