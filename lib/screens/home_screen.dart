@@ -1546,12 +1546,13 @@ class _HeaderNotificationOverlayState extends State<_HeaderNotificationOverlay>
     final overlayHeight =
         (screenHeight * 0.15).clamp(100.0, screenHeight * 0.35).toDouble();
     final topInset = mediaQuery.padding.top;
+    final totalHeight = overlayHeight + topInset;
 
     return Positioned(
-      top: 0,
+      top: -topInset,
       left: 0,
       right: 0,
-      height: overlayHeight,
+      height: totalHeight,
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
