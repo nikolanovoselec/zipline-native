@@ -523,6 +523,10 @@ class _HomeScreenState extends State<HomeScreen> {
         final url = file?['url'] as String?;
         final name = file?['name'] as String?;
         if (url != null) {
+          locator.debug.log('SHARE', 'Processed single upload result', data: {
+            'displayName': name,
+            'url': url,
+          });
           await _copyShareAndNotify(
             url,
             displayName: name,
