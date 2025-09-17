@@ -1689,38 +1689,45 @@ class _HeaderNotificationOverlayState extends State<_HeaderNotificationOverlay>
               position: _slideAnimation,
               child: FadeTransition(
                 opacity: _fadeAnimation,
-                child: Container(
-                  width: double.infinity,
-                  height: overlayHeight,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        widget.color,
-                        widget.color
-                            .withValues(alpha: _bannerSecondaryAlpha),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                child: Semantics(
+                  liveRegion: true,
+                  label: widget.message,
+                  child: Container(
+                    width: double.infinity,
+                    height: overlayHeight,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          widget.color,
+                          widget.color
+                              .withValues(alpha: _bannerSecondaryAlpha),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
-                  ),
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                      child: Text(
-                        widget.message,
-                        textAlign: TextAlign.center,
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      decoration: TextDecoration.none,
-                                    ) ??
-                                const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w600,
-                                  decoration: TextDecoration.none,
-                                ),
+                    child: Center(
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 32.0),
+                        child: Text(
+                          widget.message,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    decoration: TextDecoration.none,
+                                  ) ??
+                              const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.none,
+                              ),
+                        ),
                       ),
                     ),
                   ),
