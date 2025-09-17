@@ -527,6 +527,27 @@ class _HomeScreenState extends State<HomeScreen> {
     ));
   }
 
+  Widget _buildShareActionChip() {
+    return Container(
+      width: _shareChipSize,
+      height: _shareChipSize,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 0.8,
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.ios_share,
+        color: const Color(0xFF94A3B8).withValues(alpha: 0.8),
+        size: 16,
+      ),
+    );
+  }
+
   Future<void> _openServerInBrowser() async {
     try {
       final credentials = await _authService.getCredentials();
@@ -1264,28 +1285,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ],
                                           ),
                                         ),
-                                        Container(
-                                          width: 32,
-                                          height: 32,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white
-                                                .withValues(alpha: 0.04),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            border: Border.all(
-                                              color: Colors.white
-                                                  .withValues(alpha: 0.08),
-                                              width: 0.8,
-                                            ),
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: Icon(
-                                            Icons.ios_share,
-                                            color: const Color(0xFF94A3B8)
-                                                .withValues(alpha: 0.8),
-                                            size: 16,
-                                          ),
-                                        ),
+                                        _buildShareActionChip(),
                                       ],
                                     ),
                                   ),
