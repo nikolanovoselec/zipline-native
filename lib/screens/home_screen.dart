@@ -502,7 +502,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final successful =
         results.where((result) => result['success'] == true).toList();
 
-    if (successful.isEmpty) return;
+    if (successful.isEmpty) {
+      locator.debug
+          .log('SHARE', 'No successful uploads to process', level: 'DEBUG');
+      return;
+    }
 
     if (successful.length == 1) {
       final files = successful.first['files'];
