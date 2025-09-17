@@ -26,6 +26,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  static const String _readyToShareMessage = 'Ready for sharing!';
+  static const Duration _shareSheetDelay = Duration(seconds: 2);
+
   final AuthService _authService = locator.auth;
   final FileUploadService _uploadService = locator.fileUpload;
   final UploadQueueService _queueService = locator.uploadQueue;
@@ -474,11 +477,11 @@ class _HomeScreenState extends State<HomeScreen> {
     await _copyToClipboard(url);
 
     if (mounted) {
-      _showHeaderNotification('Ready for sharing!', Colors.green.shade600);
+      _showHeaderNotification(_readyToShareMessage, Colors.green.shade600);
     }
 
     if (openShareSheet) {
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(_shareSheetDelay);
       if (mounted) {
         await _openShareSheet(url, subject: displayName);
       }
@@ -509,7 +512,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!mounted) return;
 
-    _showHeaderNotification('Ready for sharing!', Colors.green.shade600);
+    _showHeaderNotification(_readyToShareMessage, Colors.green.shade600);
   }
 
   void _handleRecentItemShare(String url, {String? displayName}) {
