@@ -500,6 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await Future.delayed(_shareSheetDelay);
       if (mounted) {
         await _openShareSheet(url, subject: displayName);
+        locator.debug.log('SHARE', 'Share sheet presented');
       }
     } else {
       locator.debug.log('SHARE', 'Share sheet suppressed for copy only');
