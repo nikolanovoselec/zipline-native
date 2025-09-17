@@ -501,6 +501,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         await _openShareSheet(url, subject: displayName);
       }
+    } else {
+      locator.debug.log('SHARE', 'Share sheet suppressed for copy only');
     }
   }
 
