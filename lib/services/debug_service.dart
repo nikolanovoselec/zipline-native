@@ -125,15 +125,20 @@ class DebugService {
   }
 
   void logError(String category, String message,
-      {dynamic error, StackTrace? stackTrace}) {
-    final data = <String, dynamic>{};
+      {dynamic error,
+      StackTrace? stackTrace,
+      Map<String, dynamic>? data}) {
+    final combinedData = <String, dynamic>{};
+    if (data != null && data.isNotEmpty) {
+      combinedData.addAll(data);
+    }
     if (error != null) {
-      data['error'] = error.toString();
+      combinedData['error'] = error.toString();
     }
     if (stackTrace != null) {
-      data['stackTrace'] = stackTrace.toString();
+      combinedData['stackTrace'] = stackTrace.toString();
     }
-    log(category, message, data: data, level: 'ERROR');
+    log(category, message, data: combinedData, level: 'ERROR');
   }
 
   List<DebugLog> getLogs({String? category, String? level}) {

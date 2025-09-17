@@ -18,6 +18,8 @@ import '../widgets/upload_queue_widget.dart';
 import 'settings_screen.dart';
 import '../widgets/common/minimal_text_field.dart';
 
+const double _bannerSecondaryAlpha = 0.85;
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -29,9 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   static const String _readyToShareMessage = 'Ready for sharing!';
   static const Duration _shareSheetDelay = Duration(seconds: 2);
   static const double _shareChipSize = 32.0;
-  static const double _bannerSecondaryAlpha = 0.85;
   static const String _shareChipLabel = 'Share link';
-  static const String _shareLogTag = _shareLogTag;
+  static const String _shareLogTag = 'SHARE_FLOW';
 
   final AuthService _authService = locator.auth;
   final FileUploadService _uploadService = locator.fileUpload;

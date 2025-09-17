@@ -6,7 +6,7 @@
 /// If not specified, the app will use sensible defaults.
 class BuildConfig {
   /// OAuth redirect URL for Cloudflare Worker
-  /// Can be set at build time with: --dart-define=OAUTH_REDIRECT_URL=<url>
+  /// Can be set at build time with: --dart-define=OAUTH_REDIRECT_URL=YOUR_URL
   /// If not set, will use the Zipline server domain with /app/oauth-redirect path
   static const String oauthRedirectUrl = String.fromEnvironment(
     'OAUTH_REDIRECT_URL',
