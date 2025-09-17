@@ -463,7 +463,12 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } catch (e, stackTrace) {
       locator.debug.logError('SHARE', 'Failed to open share sheet',
-          error: e, stackTrace: stackTrace);
+          error: e,
+          stackTrace: stackTrace,
+          data: {
+            'url': url,
+            'subject': subject,
+          });
       if (mounted) {
         _showHeaderNotification(
           'Unable to open share sheet',
