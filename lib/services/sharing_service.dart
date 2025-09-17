@@ -11,7 +11,6 @@ class SharingService {
   Function(List<File>)? onFilesShared;
   Function(String)? onError;
   Function(List<Map<String, dynamic>>)? onUploadComplete;
-  Function()? onClipboardCopy;
 
   void initialize() {
     // Initialization complete - using platform channels for file sharing
