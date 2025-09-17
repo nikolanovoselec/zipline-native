@@ -312,10 +312,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
         final successCount = results.where((r) => r['success'] == true).length;
         if (successCount > 0) {
-          // Clipboard notification will be shown by onClipboardCopy callback
           HapticFeedback.lightImpact();
-          locator.debug.log(
-              'UPLOAD', 'Upload success, clipboard notification triggered');
+          locator.debug
+              .log('UPLOAD', 'Upload success, preparing post actions');
+          await _processUploadResults(results);
         } else {
           _showErrorSnackBar('Upload failed for all files');
           locator.debug.log('UPLOAD', 'All uploads failed', level: 'ERROR');
