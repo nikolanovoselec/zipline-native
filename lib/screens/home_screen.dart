@@ -30,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Duration _shareSheetDelay = Duration(seconds: 2);
   static const double _shareChipSize = 32.0;
   static const double _bannerSecondaryAlpha = 0.85;
+  static const String _shareChipLabel = 'Share link';
 
   final AuthService _authService = locator.auth;
   final FileUploadService _uploadService = locator.fileUpload;
@@ -1310,7 +1311,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         Semantics(
                                           button: true,
-                                          label: 'Share link',
+                                          label: _shareChipLabel,
                                           child: _buildShareActionChip(),
                                         ),
                                       ],
