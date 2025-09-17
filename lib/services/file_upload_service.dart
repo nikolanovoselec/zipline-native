@@ -433,11 +433,6 @@ class FileUploadService {
           if (password != null) 'protected': true,
         };
 
-        // Copy to clipboard
-        await _copyToClipboard(shortUrl);
-        debugService.logUpload('Shortened URL copied to clipboard',
-            data: {'url': shortUrl});
-
         return shortenResult;
       } else {
         throw Exception('URL shortening failed: ${response.statusCode}');
