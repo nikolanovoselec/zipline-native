@@ -116,12 +116,14 @@ class _DebugScreenState extends State<DebugScreen> {
   Future<void> _shareLogFile(File file) async {
     try {
       // Share the actual JSON file using Android share system
-      final result = await Share.shareXFiles(
-        [XFile(file.path)],
-        subject:
-            'Zipline Debug Logs - ${DateTime.now().toString().split(' ')[0]}',
-        text:
-            'Debug logs exported from Zipline Native App for authentication troubleshooting.',
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          subject:
+              'Zipline Debug Logs - ${DateTime.now().toString().split(' ')[0]}',
+          text:
+              'Debug logs exported from Zipline Native App for authentication troubleshooting.',
+        ),
       );
 
       if (mounted) {
