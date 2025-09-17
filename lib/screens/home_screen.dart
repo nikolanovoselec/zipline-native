@@ -485,6 +485,40 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _processUploadResults(List<Map<String, dynamic>> results) async {
+    final successful =
+        results.where((result) => result['success'] == true).toList();
+
+    if (successful.isEmpty) return;
+
+    if (successful.length == 1) {
+      final files = successful.first['files'];
+      if (files is List && files.length == 1) {
+        final file = files.first as Map<String, dynamic>?;
+        final url = file?['url'] as String?;
+        final name = file?['name'] as String?;
+        if (url != null) {
+          await _copyShareAndNotify(
+            url,
+            displayName: name,
+          );
+          return;
+        }
+      }
+    }
+
+    if (!mounted) return;
+
+    _showHeaderNotification('Ready for sharing!', Colors.green.shade600);
+  }
+
+  void _handleRecentItemShare(String url, {String? displayName}) {
+    unawaited(_copyShareAndNotify(
+      url,
+      displayName: displayName,
+    ));
+  }
+
   Future<void> _openServerInBrowser() async {
     try {
       final credentials = await _authService.getCredentials();
