@@ -447,7 +447,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openShareSheet(String url, {String? subject}) async {
-    if (_shareSheetActive) return;
+    if (_shareSheetActive) {
+      locator.debug.log('SHARE', 'Share sheet already active, skipping');
+      return;
+    }
     _shareSheetActive = true;
     try {
       await SharePlus.instance.share(
