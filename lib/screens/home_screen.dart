@@ -28,6 +28,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   static const String _readyToShareMessage = 'Ready for sharing!';
   static const Duration _shareSheetDelay = Duration(seconds: 2);
+  static const double _shareChipSize = 32.0;
 
   final AuthService _authService = locator.auth;
   final FileUploadService _uploadService = locator.fileUpload;
@@ -1187,8 +1188,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Row(
                                       children: [
                                         Container(
-                                          width: 32,
-                                          height: 32,
+                                          width: _shareChipSize,
+                                          height: _shareChipSize,
                                           decoration: BoxDecoration(
                                             color: const Color(0xFF1976D2)
                                                 .withValues(alpha: 0.15),
