@@ -1308,7 +1308,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ],
                                           ),
                                         ),
-                                        _buildShareActionChip(),
+                                        Semantics(
+                                          button: true,
+                                          label: 'Share link',
+                                          child: _buildShareActionChip(),
+                                        ),
                                       ],
                                     ),
                                   ),
