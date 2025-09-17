@@ -164,8 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _uploadHistory.insertAll(0, results);
         _isUploading = false;
       });
-      // Clipboard notification will be shown by onClipboardCopy callback
       HapticFeedback.lightImpact();
+      unawaited(_processUploadResults(results));
     };
 
     _sharingService.onError = (String error) {
@@ -176,12 +176,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _showErrorSnackBar(error);
     };
 
-    // Set up clipboard callback for file upload service
-    _uploadService.onClipboardCopy = () {
-      if (mounted) {
-        _showClipboardToast();
-      }
-    };
   }
 
   Future<void> _pickAndUploadFiles() async {
