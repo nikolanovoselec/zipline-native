@@ -479,6 +479,11 @@ class _HomeScreenState extends State<HomeScreen> {
     String? displayName,
     bool openShareSheet = true,
   }) async {
+    locator.debug.log('SHARE', 'Copying link to clipboard', data: {
+      'displayName': displayName,
+      'url': url,
+      'openShareSheet': openShareSheet,
+    });
     await _copyToClipboard(url);
 
     if (mounted) {
