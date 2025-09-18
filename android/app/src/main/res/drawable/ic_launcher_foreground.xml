@@ -1,27 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    
-    <!-- Futuristic Rocket Icon -->
-    <group android:translateX="54" android:translateY="54">
-        <!-- Glow circle behind rocket (using path instead of circle) -->
-        <path android:pathData="M-32,0 a32,32 0 1,0 64,0 a32,32 0 1,0 -64,0"
-              android:fillColor="#00E5FF" android:alpha="0.15"/>
-        
-        <!-- Rocket body (scaled and centered) -->
-        <path android:pathData="M0,-24 L10,4 L6,6 L6,16 L-6,16 L-6,6 L-10,4 Z"
-              android:fillColor="#00E5FF"/>
-        
-        <!-- Rocket flames -->
-        <path android:pathData="M-6,16 L-10,26 L-3,22 L0,28 L3,22 L10,26 L6,16"
-              android:fillColor="#FF6B35" android:alpha="0.85"/>
-        
-        <!-- Rocket window (using path instead of circle) -->
-        <path android:pathData="M-3,-4 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0"
-              android:fillColor="#0D1B2A"/>
-    </group>
-    
-</vector>
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center"
+    android:src="@mipmap/ic_launcher_foreground" />
