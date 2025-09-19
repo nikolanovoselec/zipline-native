@@ -354,6 +354,12 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen>
       return;
     }
 
+    final storedToken = await _biometricService.getStoredAuthToken();
+    if (storedToken == null || storedToken.isEmpty) {
+      await _biometricService.disableBiometric();
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });

@@ -107,6 +107,15 @@ class BiometricService {
       return null;
     }
 
+    // Ensure we have a stored token before prompting the user
+    final existingToken = await getStoredAuthToken();
+    if (existingToken == null || existingToken.isEmpty) {
+      _debugService.logAuth(
+          'No stored auth token found for biometrics. Disabling biometric login.');
+      await disableBiometric();
+      return null;
+    }
+
     // Authenticate using biometrics
     final authenticated = await authenticate();
     if (!authenticated) {
@@ -116,8 +125,10 @@ class BiometricService {
 
     // Get and return the stored token
     final token = await getStoredAuthToken();
-    if (token == null) {
-      _debugService.logAuth('No stored auth token found');
+    if (token == null || token.isEmpty) {
+      _debugService.logAuth(
+          'Stored auth token missing after biometric authentication; disabling biometric');
+      await disableBiometric();
       return null;
     }
 
