@@ -47,10 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await _debugService.initialize(); // Ensure debug service is initialized
       setState(() {
         final ziplineUrl = (credentials['ziplineUrl'] ?? '').trim();
-        // Strip https:// prefix when loading into the controller
-        _urlController.text = ziplineUrl.startsWith('https://')
-            ? ziplineUrl.substring(8).trim()
-            : ziplineUrl;
+        _urlController.text = ziplineUrl;
         _cfClientIdController.text = credentials['cfClientId'] ?? '';
         _cfClientSecretController.text = credentials['cfClientSecret'] ?? '';
         _debugLogsEnabled = _debugService.debugLogsEnabled;
@@ -97,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Save updated settings while preserving authentication
       await _authService.saveCredentials(
-        ziplineUrl: 'https://${_urlController.text.trim()}',
+        ziplineUrl: _urlController.text.trim(),
         username: currentCredentials['username'] ?? '',
         password: currentCredentials['password'] ?? '',
         cfClientId: _cfClientIdController.text.trim().isEmpty
@@ -359,16 +356,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return _buildTextField(
       controller: _urlController,
       label: '', // Remove redundant label
-      placeholder: 'your-zipline-server.com',
+      placeholder: 'https://zipline.example.com',
       icon: Icons.dns_outlined,
-      prefix: 'https://',
       validator: (value) {
-        if (value == null || value.trim().isEmpty) {
+        final trimmed = value?.trim() ?? '';
+        if (trimmed.isEmpty) {
           return 'Please enter your Zipline server URL';
         }
-        final fullUrl = 'https://${value.trim()}';
-        final uri = Uri.tryParse(fullUrl);
-        if (uri == null || !uri.hasAuthority) {
+        final uri = Uri.tryParse(trimmed);
+        if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
           return 'Please enter a valid server address';
         }
         return null;
