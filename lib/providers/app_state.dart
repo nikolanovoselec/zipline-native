@@ -29,6 +29,8 @@ class AppState extends ChangeNotifier {
   bool get uploadQueueVisible => _uploadQueueVisible;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  bool get hasFailedUploads =>
+      _uploadTasks.any((task) => task.status == UploadStatus.failed);
 
   // Check if there are active uploads
   bool get hasActiveUploads => _uploadTasks.any((task) =>
@@ -46,7 +48,7 @@ class AppState extends ChangeNotifier {
       _uploadTasks = tasks;
 
       // Auto-show queue when uploads are active
-      if (hasActiveUploads && !_uploadQueueVisible) {
+      if ((hasActiveUploads || hasFailedUploads) && !_uploadQueueVisible) {
         _uploadQueueVisible = true;
       }
 

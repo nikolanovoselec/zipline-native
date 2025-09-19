@@ -348,30 +348,79 @@ class UploadQueueService {
   Future<void> cancelUpload(String taskId) async => cancelTask(taskId);
 
   Future<void> retryUpload(String taskId) async {
-    final task = _completedTasks.firstWhere(
-      (t) => t.id == taskId && t.status == UploadStatus.failed,
-      orElse: () => _queue.firstWhere(
+    UploadTask? task;
+    try {
+      task = _completedTasks.firstWhere(
         (t) => t.id == taskId && t.status == UploadStatus.failed,
-      ),
-    );
-
-    if (task.retryCount < maxRetries) {
-      task.status = UploadStatus.pending;
-      task.progress = 0.0;
-      task.error = null;
-      task.cancelToken = CancelToken();
-      if (!_queue.contains(task)) {
-        _queue.add(task);
+      );
+      _completedTasks.remove(task);
+    } catch (_) {
+      try {
+        task = _queue.firstWhere(
+          (t) => t.id == taskId && t.status == UploadStatus.failed,
+        );
+        _queue.removeWhere((queuedTask) => queuedTask.id == taskId);
+      } catch (_) {
+        task = _activeTasks.remove(taskId);
       }
-      _notifyQueueUpdate();
-      _processNextInQueue();
     }
+
+    if (task == null) {
+      _debugService.log('UPLOAD', 'Retry requested for unknown task', data: {
+        'taskId': taskId,
+      });
+      return;
+    }
+
+    task
+      ..status = UploadStatus.pending
+      ..progress = 0.0
+      ..error = null
+      ..cancelToken = null
+      ..retryCount = 0
+      ..uploadedAt = null;
+
+    if (!_queue.contains(task)) {
+      _queue.add(task);
+    }
+
+    _debugService.log('UPLOAD', 'Retrying upload via user action', data: {
+      'taskId': task.id,
+    });
+
+    _notifyQueueUpdate();
+    _processNextInQueue();
   }
 
   void dispose() {
     _queueController.close();
     _completionController.close();
     _connectivityService?.removeListener(_handleConnectivityChange);
+  }
+
+  @visibleForTesting
+  Future<void> cleanupTemporaryFileForTest(UploadTask task) {
+    return _cleanupTemporaryFile(task);
+  }
+
+  void dismissTask(String taskId) {
+    final initialQueueLength = _queue.length;
+    _queue.removeWhere((task) => task.id == taskId);
+    final removedFromQueue = _queue.length != initialQueueLength;
+
+    final initialCompletedLength = _completedTasks.length;
+    _completedTasks.removeWhere((task) => task.id == taskId);
+    final removedFromCompleted =
+        _completedTasks.length != initialCompletedLength;
+
+    final removedFromActive = _activeTasks.remove(taskId) != null;
+
+    if (removedFromQueue || removedFromCompleted || removedFromActive) {
+      _debugService.log('UPLOAD', 'Dismissed task from queue', data: {
+        'taskId': taskId,
+      });
+      _notifyQueueUpdate();
+    }
   }
 
   Map<String, dynamic> _parseUploadResponse(dynamic data, String fileName,

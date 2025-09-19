@@ -48,8 +48,11 @@ class _UploadQueueOverlayState extends State<UploadQueueOverlay>
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, appState, child) {
+        final hasFailedTasks = appState.uploadTasks
+            .any((task) => task.status == UploadStatus.failed);
         // Show/hide animation based on state
-        if (appState.hasActiveUploads && appState.uploadQueueVisible) {
+        if ((appState.hasActiveUploads || hasFailedTasks) &&
+            appState.uploadQueueVisible) {
           _animationController.forward();
         } else {
           _animationController.reverse();
@@ -81,8 +84,13 @@ class _UploadQueueOverlayState extends State<UploadQueueOverlay>
             task.status == UploadStatus.pending ||
             task.status == UploadStatus.paused)
         .toList();
+    final failedTasks = appState.uploadTasks
+        .where((task) => task.status == UploadStatus.failed)
+        .toList();
+    final hasActive = activeTasks.isNotEmpty;
+    final hasFailed = failedTasks.isNotEmpty;
 
-    if (activeTasks.isEmpty && !appState.uploadQueueVisible) {
+    if (!hasActive && !hasFailed && !appState.uploadQueueVisible) {
       return const SizedBox.shrink();
     }
 
@@ -129,13 +137,36 @@ class _UploadQueueOverlayState extends State<UploadQueueOverlay>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Uploading ${activeTasks.length} file${activeTasks.length > 1 ? 's' : ''}',
+                  hasActive
+                      ? 'Uploading ${activeTasks.length} file${activeTasks.length > 1 ? 's' : ''}'
+                      : hasFailed
+                          ? 'Upload issues'
+                          : 'Uploads',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                if (hasFailed) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                    child: Text(
+                      '${failedTasks.length} failed',
+                      style: const TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
                 const Spacer(),
                 // Minimize button
                 IconButton(
@@ -154,31 +185,62 @@ class _UploadQueueOverlayState extends State<UploadQueueOverlay>
               ],
             ),
           ),
-          // Active uploads (max 2 shown)
-          Container(
-            constraints: const BoxConstraints(maxHeight: 120),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.zero,
-              itemCount: activeTasks.length > 2 ? 2 : activeTasks.length,
-              itemBuilder: (context, index) {
-                return _buildTaskItem(activeTasks[index]);
-              },
-            ),
-          ),
-          // Show more button if needed
-          if (activeTasks.length > 2)
+          if (hasActive) ...[
             Container(
-              padding: const EdgeInsets.all(8),
-              child: Text(
-                '+${activeTasks.length - 2} more uploads',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5),
-                  fontSize: 12,
-                ),
+              constraints: const BoxConstraints(maxHeight: 120),
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.zero,
+                itemCount:
+                    activeTasks.length > 2 ? 2 : activeTasks.length,
+                itemBuilder: (context, index) {
+                  return _buildTaskItem(activeTasks[index]);
+                },
               ),
             ),
+            if (activeTasks.length > 2)
+              Container(
+                padding: const EdgeInsets.all(8),
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '+${activeTasks.length - 2} more uploads',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+          ],
+          if (hasFailed) ...[
+            if (hasActive)
+              Divider(
+                color: Colors.white.withValues(alpha: 0.08),
+                height: 1,
+              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.redAccent,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Needs attention',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ...failedTasks.map(_buildFailedTaskItem),
+          ],
         ],
       ),
     );
@@ -293,6 +355,66 @@ class _UploadQueueOverlayState extends State<UploadQueueOverlay>
       ),
     );
   }
+
+  Widget _buildFailedTaskItem(UploadTask task) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.red.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.red.withValues(alpha: 0.4),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  task.fileName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () => _queueService.retryUpload(task.id),
+                icon: const Icon(Icons.refresh, size: 16),
+                label: const Text('Retry'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              TextButton(
+                onPressed: () => _queueService.dismissTask(task.id),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white.withValues(alpha: 0.7),
+                ),
+                child: const Text('Dismiss'),
+              ),
+            ],
+          ),
+          if (task.error != null && task.error!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              task.error!,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.75),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 // Mini floating button to show queue when minimized
@@ -303,9 +425,17 @@ class UploadQueueFloatingButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, appState, child) {
-        if (!appState.hasActiveUploads || appState.uploadQueueVisible) {
+        if (((!appState.hasActiveUploads && !appState.hasFailedUploads) ||
+                appState.uploadQueueVisible)) {
           return const SizedBox.shrink();
         }
+
+        final outstandingCount = appState.uploadTasks
+            .where((task) =>
+                task.status == UploadStatus.uploading ||
+                task.status == UploadStatus.pending ||
+                task.status == UploadStatus.failed)
+            .length;
 
         return Positioned(
           bottom: 80,
@@ -330,7 +460,7 @@ class UploadQueueFloatingButton extends StatelessWidget {
                       minHeight: 12,
                     ),
                     child: Text(
-                      '${appState.uploadTasks.where((t) => t.status == UploadStatus.uploading || t.status == UploadStatus.pending).length}',
+                      '$outstandingCount',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 8,
