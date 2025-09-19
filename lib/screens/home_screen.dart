@@ -10,11 +10,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/service_locator.dart';
 import '../services/auth_service.dart';
 import '../services/file_upload_service.dart';
-import '../services/upload_queue_service.dart';
 import '../services/sharing_service.dart';
 import '../services/intent_service.dart';
 import '../services/activity_service.dart';
-import '../widgets/upload_queue_widget.dart';
 import 'settings_screen.dart';
 import '../widgets/common/minimal_text_field.dart';
 
@@ -34,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final AuthService _authService = locator.auth;
   final FileUploadService _uploadService = locator.fileUpload;
-  final UploadQueueService _queueService = locator.uploadQueue;
   final SharingService _sharingService = locator.sharing;
   final IntentService _intentService = locator.intent;
   final ActivityService _activityService = locator.activity;
@@ -158,12 +155,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _setupSharingService() {
-    // _sharingService.onFilesShared = (List<File> files) {
-    //   setState(() {
-    //     _isUploading = true;
-    //   });
-    //   _showSuccessSnackBar('Received ${files.length} file(s) to upload');
-    // };
+    _sharingService.onFilesShared = (List<File> files) {
+      if (!mounted) return;
+      setState(() {
+        _isUploading = true;
+        _uploadProgress = 0.0;
+      });
+      locator.debug.log('UPLOAD', 'SharingService received files', data: {
+        'fileCount': files.length,
+      });
+    };
 
     _sharingService.onUploadComplete = (List<Map<String, dynamic>> results) {
       setState(() {
@@ -226,8 +227,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (sharedFiles.isNotEmpty) {
       setState(() {
         _isUploading = true;
+        _uploadProgress = 0.0;
       });
-      await _uploadFiles(sharedFiles);
+      unawaited(_sharingService.uploadFiles(sharedFiles));
     } else if (sharedText != null) {
       // Handle shared URL
       _urlController.text = sharedText;
@@ -1326,15 +1328,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 24), // Minimal bottom padding
                 ],
               ),
-            ),
-          ),
-          // Upload queue overlay
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: UploadQueueWidget(
-              queueService: _queueService,
             ),
           ),
         ],

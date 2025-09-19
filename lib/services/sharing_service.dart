@@ -1,9 +1,16 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:get_it/get_it.dart';
+import 'package:uuid/uuid.dart';
+import '../core/service_locator.dart';
+import 'activity_service.dart';
 import 'file_upload_service.dart';
+import 'upload_queue_service.dart';
 
 class SharingService {
   FileUploadService get _uploadService => GetIt.I<FileUploadService>();
+  UploadQueueService get _queueService => GetIt.I<UploadQueueService>();
+  ActivityService get _activityService => locator.activity;
 
   static final SharingService _instance = SharingService._internal();
   factory SharingService() => _instance;
@@ -13,24 +20,140 @@ class SharingService {
   Function(String)? onError;
   Function(List<Map<String, dynamic>>)? onUploadComplete;
 
+  final Map<String, _PendingUpload> _pendingUploads = {};
+  final Map<String, String> _taskIdToSession = {};
+  StreamSubscription<Map<String, dynamic>>? _queueSubscription;
+  final Uuid _uuid = const Uuid();
+
   void initialize() {
-    // Initialization complete - using platform channels for file sharing
+    _queueSubscription ??=
+        _queueService.completionStream.listen(_handleQueueCompletion);
   }
 
   Future<void> uploadFiles(List<File> files) async {
+    initialize();
     try {
       onFilesShared?.call(files);
       final results = await _uploadService.uploadMultipleFiles(
         files,
         useQueue: true,
       );
-      onUploadComplete?.call(results);
+      final queuedEntry = results.firstWhere(
+        (result) => result['queued'] == true && result['taskIds'] is List,
+        orElse: () => {},
+      );
+
+      if (queuedEntry.isEmpty) {
+        if (results.isNotEmpty && results.any((r) => r['success'] == false)) {
+          final message = results
+                  .firstWhere((r) => r['success'] == false)['error']
+                  ?.toString() ??
+              'Upload failed';
+          onError?.call(message);
+        } else if (results.isNotEmpty) {
+          onUploadComplete?.call(results);
+          await _recordActivities(results);
+        }
+        return;
+      }
+
+      final taskIds = List<String>.from(queuedEntry['taskIds']);
+      if (taskIds.isEmpty) {
+        return;
+      }
+
+      final sessionId = _uuid.v4();
+      final pending = _PendingUpload(taskIds.toSet());
+      _pendingUploads[sessionId] = pending;
+      for (final taskId in taskIds) {
+        _taskIdToSession[taskId] = sessionId;
+      }
     } catch (e) {
       onError?.call('Upload failed: $e');
     }
   }
 
   void dispose() {
-    // Cleanup when needed
+    _queueSubscription?.cancel();
+    _pendingUploads.clear();
+    _taskIdToSession.clear();
   }
+
+  void _handleQueueCompletion(Map<String, dynamic> event) async {
+    final taskId = event['taskId']?.toString();
+    if (taskId == null) {
+      return;
+    }
+
+    final sessionId = _taskIdToSession.remove(taskId);
+    if (sessionId == null) {
+      await _handleStandaloneEvent(event);
+      return;
+    }
+
+    final pending = _pendingUploads[sessionId];
+    if (pending == null) {
+      await _handleStandaloneEvent(event);
+      return;
+    }
+
+    pending.remainingTaskIds.remove(taskId);
+
+    if (event['success'] == true) {
+      final files = event['files'];
+      final result = {
+        'success': true,
+        'files': files,
+      };
+      pending.successResults.add(result);
+      await _recordActivities([result]);
+    } else {
+      final message = event['error']?.toString() ?? 'Upload failed';
+      pending.errors.add(message);
+      onError?.call(message);
+    }
+
+    if (pending.remainingTaskIds.isEmpty) {
+      if (pending.successResults.isNotEmpty) {
+        onUploadComplete?.call(pending.successResults);
+      }
+      _pendingUploads.remove(sessionId);
+    }
+  }
+
+  Future<void> _handleStandaloneEvent(Map<String, dynamic> event) async {
+    if (event['success'] == true) {
+      final result = {
+        'success': true,
+        'files': event['files'],
+      };
+      onUploadComplete?.call([result]);
+      await _recordActivities([result]);
+    } else {
+      final message = event['error']?.toString() ?? 'Upload failed';
+      onError?.call(message);
+    }
+  }
+
+  Future<void> _recordActivities(List<Map<String, dynamic>> results) async {
+    for (final result in results) {
+      final files = result['files'];
+      if (files is List && files.isNotEmpty) {
+        final entry = {
+          'type': 'file_upload',
+          'files': files,
+          'success': result['success'] == true,
+        };
+        await _activityService.addActivity(entry);
+      }
+    }
+  }
+}
+
+class _PendingUpload {
+  _PendingUpload(this.remainingTaskIds);
+
+  final Set<String> remainingTaskIds;
+  final List<Map<String, dynamic>> successResults = [];
+  final List<String> errors = [];
 }

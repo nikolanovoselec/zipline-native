@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 import 'auth_service.dart';
+import 'connectivity_service.dart';
 import 'debug_service.dart';
 
 enum UploadStatus {
@@ -28,6 +30,8 @@ class UploadTask {
   int retryCount;
   CancelToken? cancelToken;
   DateTime? uploadedAt;
+  Map<String, dynamic>? resultPayload;
+  final bool isTemporaryFile;
 
   UploadTask({
     required this.id,
@@ -40,6 +44,8 @@ class UploadTask {
     this.retryCount = 0,
     this.cancelToken,
     this.uploadedAt,
+    this.resultPayload,
+    this.isTemporaryFile = false,
   });
 }
 
@@ -74,10 +80,33 @@ class UploadQueueService {
   final List<UploadTask> _completedTasks = [];
   final StreamController<List<UploadTask>> _queueController =
       StreamController.broadcast();
+  final StreamController<Map<String, dynamic>> _completionController =
+      StreamController.broadcast();
 
   static const int maxConcurrentUploads = 3;
   static const int maxRetries = 3;
   bool _isProcessing = false;
+  bool _isNetworkAvailable = true;
+  ConnectivityService? _connectivityService;
+
+  UploadQueueService._internal() {
+    if (GetIt.I.isRegistered<ConnectivityService>()) {
+      _connectivityService = GetIt.I<ConnectivityService>();
+      _isNetworkAvailable = _connectivityService!.isConnected;
+      _connectivityService!.addListener(_handleConnectivityChange);
+    }
+  }
+
+  void _handleConnectivityChange() {
+    final connected = _connectivityService?.isConnected ?? true;
+    if (_isNetworkAvailable != connected) {
+      _isNetworkAvailable = connected;
+      if (_isNetworkAvailable && !_isProcessing &&
+          (_queue.isNotEmpty || _activeTasks.isNotEmpty)) {
+        _processQueue();
+      }
+    }
+  }
 
   @visibleForTesting
   static void setAutoProcessEnabled(bool enabled) {
@@ -87,13 +116,17 @@ class UploadQueueService {
   Stream<List<UploadTask>> get queueStream => _queueController.stream;
   List<UploadTask> get allTasks =>
       [..._queue, ..._activeTasks.values, ..._completedTasks];
+  Stream<Map<String, dynamic>> get completionStream =>
+      _completionController.stream;
 
   Future<String> addToQueue(File file) async {
     final taskId = _uuid.v4();
+    final isTemporary = file.path.contains('${Platform.pathSeparator}shared${Platform.pathSeparator}');
     final task = UploadTask(
       id: taskId,
       file: file,
       fileName: path.basename(file.path),
+      isTemporaryFile: isTemporary,
     );
 
     _queue.add(task);
@@ -158,6 +191,10 @@ class UploadQueueService {
     _isProcessing = true;
 
     while (_queue.isNotEmpty || _activeTasks.isNotEmpty) {
+      if (!_isNetworkAvailable) {
+        _isProcessing = false;
+        return;
+      }
       while (_activeTasks.length < maxConcurrentUploads && _queue.isNotEmpty) {
         final task = _queue.removeFirst();
         if (task.status == UploadStatus.pending ||
@@ -226,8 +263,14 @@ class UploadQueueService {
       );
 
       if (response.statusCode == 200) {
-        final result = response.data;
-        task.resultUrl = result['files']?[0]?['url'] ?? result['url'];
+        final fileLength = await task.file.length();
+        final parsed = _parseUploadResponse(
+          response.data,
+          task.fileName,
+          fileLength: fileLength,
+        );
+        task.resultUrl = parsed['files']?[0]?['url'];
+        task.resultPayload = parsed;
         task.status = UploadStatus.completed;
         task.uploadedAt = DateTime.now();
         task.progress = 1.0;
@@ -235,6 +278,11 @@ class UploadQueueService {
         _debugService.logUpload('Upload completed', data: {
           'taskId': task.id,
           'url': task.resultUrl,
+        });
+        _completionController.add({
+          'taskId': task.id,
+          'success': true,
+          ...parsed,
         });
       } else {
         throw Exception('Upload failed: ${response.statusCode}');
@@ -257,16 +305,29 @@ class UploadQueueService {
         task.status = UploadStatus.failed;
         _debugService.logError('UPLOAD', 'Upload failed after retries',
             error: e);
+        _completionController.add({
+          'taskId': task.id,
+          'success': false,
+          'error': e.message ?? 'Upload failed',
+        });
       }
     } catch (e) {
       task.status = UploadStatus.failed;
       task.error = e.toString();
       _debugService.logError('UPLOAD', 'Upload exception', error: e);
+      _completionController.add({
+        'taskId': task.id,
+        'success': false,
+        'error': e.toString(),
+      });
     } finally {
       _activeTasks.remove(task.id);
       if (task.status == UploadStatus.completed) {
         _completedTasks.add(task);
+      } else if (task.status == UploadStatus.failed) {
+        _completedTasks.add(task);
       }
+      await _cleanupTemporaryFile(task);
       _notifyQueueUpdate();
     }
   }
@@ -309,5 +370,63 @@ class UploadQueueService {
 
   void dispose() {
     _queueController.close();
+    _completionController.close();
+    _connectivityService?.removeListener(_handleConnectivityChange);
+  }
+
+  Map<String, dynamic> _parseUploadResponse(dynamic data, String fileName,
+      {required int fileLength}) {
+    final result = data is String ? jsonDecode(data) : data;
+    if (result is! Map<String, dynamic>) {
+      return {
+        'files': [
+          {
+            'id': null,
+            'name': fileName,
+            'url': null,
+            'size': fileLength,
+          }
+        ],
+        'success': true,
+      };
+    }
+
+    String? fileId;
+    if (result['files'] is List && result['files'].isNotEmpty) {
+      fileId = result['files'][0]['id']?.toString();
+    }
+    fileId ??= result['id']?.toString();
+    fileId ??= result['file']?['id']?.toString();
+
+    final fileUrl = result['files'] is List && result['files'].isNotEmpty
+        ? result['files'][0]['url']
+        : result['url'] ?? result['short'];
+
+    return {
+      'files': [
+        {
+          'id': fileId,
+          'name': fileName,
+          'url': fileUrl,
+          'size': fileLength,
+        }
+      ],
+      'success': true,
+      'response': result,
+    };
+  }
+
+  Future<void> _cleanupTemporaryFile(UploadTask task) async {
+    if (!task.isTemporaryFile) return;
+    try {
+      if (await task.file.exists()) {
+        await task.file.delete();
+        _debugService.log('UPLOAD', 'Deleted temporary shared file', data: {
+          'path': task.file.path,
+        });
+      }
+    } catch (e) {
+      _debugService.logError('UPLOAD', 'Failed to delete temp file', error: e);
+    }
   }
 }
