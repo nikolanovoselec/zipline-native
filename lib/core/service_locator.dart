@@ -15,10 +15,6 @@ final GetIt locator = GetIt.instance;
 void setupServiceLocator() {
   // Register singleton services (single instance throughout app)
   locator.registerSingleton<DebugService>(DebugService());
-  locator.registerSingleton<ActivityService>(ActivityService());
-  locator.registerSingleton<SharingService>(SharingService());
-  locator.registerSingleton<UploadQueueService>(UploadQueueService());
-  locator.registerSingleton<ConnectivityService>(ConnectivityService());
 
   // Register lazy singletons (created on first use)
   locator.registerLazySingleton<AuthService>(() => AuthService());
@@ -26,8 +22,16 @@ void setupServiceLocator() {
   locator.registerLazySingleton<BiometricService>(() => BiometricService());
   locator.registerLazySingleton<IntentService>(() => IntentService());
 
+  // Register remaining singletons once dependencies are in place
+  locator.registerSingleton<ActivityService>(ActivityService());
+  locator.registerSingleton<ConnectivityService>(ConnectivityService());
+  locator.registerSingleton<UploadQueueService>(UploadQueueService());
+
   // Register factory services (new instance each time)
   locator.registerFactory<FileUploadService>(() => FileUploadService());
+
+  // Register services that depend on factories
+  locator.registerSingleton<SharingService>(SharingService());
 }
 
 // Extension for easier access

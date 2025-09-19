@@ -1,6 +1,6 @@
 # Zipline Native Client: Because Your Phone Deserves Better Than Web Forms
 
-[![Version](https://img.shields.io/badge/Version-v0.0.91-blue)](https://github.com/nikolanovoselec/zipline-native/releases)
+[![Version](https://img.shields.io/badge/Version-v1.0.5-blue)](https://github.com/nikolanovoselec/zipline-native/releases)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Flutter Version](https://img.shields.io/badge/Flutter-3.24.5+-blue)](https://flutter.dev/)
 [![Android](https://img.shields.io/badge/Android-8.0%2B-green)](https://developer.android.com/)
@@ -48,6 +48,15 @@ Before you embark on this journey, make sure you have:
 - **A Zipline server** (kind of important - see below)
 - **Caffeine** (optional but recommended)
 - **Patience** (required for first-time Flutter setup)
+
+### Environment Setup Checklist (AKA the No-Nonsense Part)
+
+- `flutter pub get` to pull Dart dependencies before you touch the codebase
+- `flutter doctor` to make sure your toolchain isn't quietly on fire
+- Copy `cloudflare-oauth-redirect/wrangler.toml.example` to `cloudflare-oauth-redirect/wrangler.toml` and fill in your Cloudflare account details
+- Inside `cloudflare-oauth-redirect`, run `npm install` so Wrangler can actually build the worker
+- Store your keystore details in `android/key.properties` and keep it out of source control
+- (Optional) Run the new smoke tests with `flutter test` and `npm test --prefix cloudflare-oauth-redirect`
 
 ## Don't Have a Zipline Server Yet?
 
@@ -178,6 +187,20 @@ For OAuth support, a Cloudflare Worker needs to be deployed because OAuth provid
 4. Worker exchanges auth code with Zipline for a session cookie
 5. Worker redirects back to app using `zipline://` deep link
 6. App receives session cookie and authenticates with Zipline
+
+#### Deploying the Cloudflare Worker (Production-ish Checklist)
+
+1. `cd cloudflare-oauth-redirect`
+2. `npm install` (pull Wrangler + testing deps)
+3. Copy `wrangler.toml.example` to `wrangler.toml` and set:
+   - `name` and `account_id`
+   - `vars.ZIPLINE_URL` pointing to your instance (`https://zipline.example.com`)
+4. Store secrets so they never hit git:
+   - `wrangler secret put CF_ACCESS_CLIENT_ID`
+   - `wrangler secret put CF_ACCESS_CLIENT_SECRET`
+5. Sanity-check the worker with `npm test` (verifies we don't leak session cookies anymore)
+6. Deploy with `npm run deploy`
+7. Update the app's `OAUTH_REDIRECT_URL` (or the `--dart-define` at build time) to match your worker hostname
 
 The Worker uses multiple redirect strategies for maximum compatibility:
 - **Primary**: Direct `zipline://oauth-callback` URL scheme

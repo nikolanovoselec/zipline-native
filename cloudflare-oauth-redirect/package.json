@@ -2,10 +2,12 @@
   "name": "zipline-oauth-redirect",
   "version": "1.0.0",
   "description": "OAuth redirect handler for Zipline mobile app",
+  "type": "module",
   "main": "src/worker.js",
   "scripts": {
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev"
+    "dev": "wrangler dev",
+    "test": "node --test tests/*.test.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.34.0"

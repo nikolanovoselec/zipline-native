@@ -30,20 +30,24 @@ export default {
         });
         
         console.log('Exchange response status:', exchangeResponse.status);
-        console.log('Exchange response headers:', Object.fromEntries(exchangeResponse.headers.entries()));
+        const loggedHeaders = Object.fromEntries(exchangeResponse.headers.entries());
+        if (loggedHeaders['set-cookie']) {
+          loggedHeaders['set-cookie'] = '[redacted for security]';
+        }
+        console.log('Exchange response headers:', loggedHeaders);
         
         // Extract session cookie from response
         let sessionCookie = null;
         const setCookieHeader = exchangeResponse.headers.get('set-cookie');
         
         if (setCookieHeader) {
-          console.log('Set-Cookie header found:', setCookieHeader);
+          console.log('Set-Cookie header present on exchange response');
           
           // Parse for zipline_session cookie
           const sessionMatch = setCookieHeader.match(/zipline_session=([^;]+)/);
           if (sessionMatch) {
             sessionCookie = sessionMatch[1];
-            console.log('Session cookie extracted:', sessionCookie);
+            console.log('Session cookie extracted (length):', sessionCookie.length);
           } else {
             console.log('No zipline_session found in Set-Cookie header');
           }
@@ -84,7 +88,8 @@ export default {
 };
 
 // Helper function to generate the redirect HTML
-function redirectToApp(success, sessionCookie, error) {
+export function redirectToApp(success, sessionCookie, error) {
+  const encodedSession = sessionCookie ? btoa(sessionCookie) : null;
   const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -186,13 +191,11 @@ function redirectToApp(success, sessionCookie, error) {
     ${success && sessionCookie ? `
     <script>
         // Pass the session cookie to the app
-        const sessionCookie = ${JSON.stringify(sessionCookie)};
-        
+        const encodedSession = ${JSON.stringify(encodedSession)};
+        const sessionCookie = encodedSession ? atob(encodedSession) : null;
+
         // Build callback URL with session
         const callbackUrl = 'zipline://oauth-callback?success=true&session=' + encodeURIComponent(sessionCookie);
-        
-        // Log for debugging
-        console.log('Redirecting to app with session:', callbackUrl);
         
         // Try to open the app
         try {
@@ -219,7 +222,6 @@ function redirectToApp(success, sessionCookie, error) {
         setTimeout(() => {
             const intentUrl = 'intent://oauth-callback?success=true&session=' + encodeURIComponent(sessionCookie) + 
                              '#Intent;package=com.example.zipline_native_app;scheme=zipline;end';
-            console.log('Attempting fallback with intent URL:', intentUrl);
             window.location.href = intentUrl;
         }, 3000);
     </script>
@@ -249,3 +251,4 @@ function redirectToApp(success, sessionCookie, error) {
     },
   });
 }
+

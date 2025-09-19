@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
+import 'package:uuid/uuid.dart';
 import 'auth_service.dart';
 import 'debug_service.dart';
 
@@ -45,8 +48,25 @@ class UploadQueueService {
   factory UploadQueueService() => _instance;
   UploadQueueService._internal();
 
-  final AuthService _authService = AuthService();
-  final DebugService _debugService = DebugService();
+  static bool _autoProcessEnabled = true;
+  static final Uuid _uuid = const Uuid();
+
+  AuthService get _authService {
+    final getIt = GetIt.I;
+    if (getIt.isRegistered<AuthService>()) {
+      return getIt<AuthService>();
+    }
+    throw StateError('AuthService has not been registered in GetIt');
+  }
+
+  DebugService get _debugService {
+    final getIt = GetIt.I;
+    if (getIt.isRegistered<DebugService>()) {
+      return getIt<DebugService>();
+    }
+    throw StateError('DebugService has not been registered in GetIt');
+  }
+
   final Dio _dio = Dio();
 
   final Queue<UploadTask> _queue = Queue();
@@ -59,12 +79,17 @@ class UploadQueueService {
   static const int maxRetries = 3;
   bool _isProcessing = false;
 
+  @visibleForTesting
+  static void setAutoProcessEnabled(bool enabled) {
+    _autoProcessEnabled = enabled;
+  }
+
   Stream<List<UploadTask>> get queueStream => _queueController.stream;
   List<UploadTask> get allTasks =>
       [..._queue, ..._activeTasks.values, ..._completedTasks];
 
   Future<String> addToQueue(File file) async {
-    final taskId = DateTime.now().millisecondsSinceEpoch.toString();
+    final taskId = _uuid.v4();
     final task = UploadTask(
       id: taskId,
       file: file,
@@ -74,7 +99,7 @@ class UploadQueueService {
     _queue.add(task);
     _notifyQueueUpdate();
 
-    if (!_isProcessing) {
+    if (_autoProcessEnabled && !_isProcessing) {
       _processQueue();
     }
 

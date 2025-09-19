@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
 import 'package:mime/mime.dart';
 import 'auth_service.dart';
@@ -11,16 +12,50 @@ import 'upload_queue_service.dart';
 /// Uses Dio HTTP client for progress tracking and chunked uploads.
 /// Automatically handles authentication headers and MIME type detection.
 class FileUploadService {
-  final AuthService _authService = AuthService();
-  final UploadQueueService _queueService = UploadQueueService();
-  late final Dio _dio; // HTTP client with progress tracking support
+  FileUploadService({
+    AuthService? authService,
+    UploadQueueService? queueService,
+    Dio? dio,
+    DebugService? debugService,
+  })  : _authService = authService ?? _resolveAuthService(),
+        _queueService = queueService ?? _resolveQueueService(),
+        _debugService = debugService ?? _resolveDebugService(),
+        _dio = dio ??
+            Dio(
+              BaseOptions(
+                connectTimeout: const Duration(seconds: 30),
+                receiveTimeout: const Duration(seconds: 60),
+                sendTimeout: const Duration(seconds: 60),
+              ),
+            );
 
-  FileUploadService() {
-    _dio = Dio(BaseOptions(
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 60),
-      sendTimeout: const Duration(seconds: 60),
-    ));
+  final AuthService _authService;
+  final UploadQueueService _queueService;
+  final DebugService _debugService;
+  final Dio _dio; // HTTP client with progress tracking support
+
+  static AuthService _resolveAuthService() {
+    final getIt = GetIt.I;
+    if (getIt.isRegistered<AuthService>()) {
+      return getIt<AuthService>();
+    }
+    throw StateError('AuthService has not been registered in GetIt');
+  }
+
+  static UploadQueueService _resolveQueueService() {
+    final getIt = GetIt.I;
+    if (getIt.isRegistered<UploadQueueService>()) {
+      return getIt<UploadQueueService>();
+    }
+    throw StateError('UploadQueueService has not been registered in GetIt');
+  }
+
+  static DebugService _resolveDebugService() {
+    final getIt = GetIt.I;
+    if (getIt.isRegistered<DebugService>()) {
+      return getIt<DebugService>();
+    }
+    throw StateError('DebugService has not been registered in GetIt');
   }
 
   /// Uploads a file to the configured Zipline server with progress tracking.
@@ -47,7 +82,7 @@ class FileUploadService {
   /// File size limits and supported types are determined by server configuration.
   Future<Map<String, dynamic>?> uploadFile(File file,
       {Function(double)? onProgress}) async {
-    final debugService = DebugService();
+    final debugService = _debugService;
 
     try {
       debugService.logUpload('Starting file upload', data: {
@@ -286,7 +321,7 @@ class FileUploadService {
   /// Returns null if all attempts fail.
   Future<Map<String, dynamic>?> shortenUrl(String url,
       {String? customSlug, String? password, DateTime? expiresAt}) async {
-    final debugService = DebugService();
+    final debugService = _debugService;
 
     try {
       debugService.logUpload('Starting URL shortening', data: {'url': url});
@@ -497,7 +532,7 @@ class FileUploadService {
   }
 
   Future<List<Map<String, dynamic>>> fetchUserFiles() async {
-    final debugService = DebugService();
+    final debugService = _debugService;
 
     try {
       final credentials = await _authService.getCredentials();
@@ -586,7 +621,7 @@ class FileUploadService {
   }
 
   Future<List<Map<String, dynamic>>> fetchUserUrls() async {
-    final debugService = DebugService();
+    final debugService = _debugService;
 
     try {
       final credentials = await _authService.getCredentials();
@@ -656,7 +691,7 @@ class FileUploadService {
   }
 
   Future<bool> setFileExpiration(String fileId, DateTime expiresAt) async {
-    final debugService = DebugService();
+    final debugService = _debugService;
 
     debugService.logError('FILES',
         'File expiration modification not supported by Zipline server - fileId: $fileId, requested: ${expiresAt.toIso8601String()}');
@@ -667,7 +702,7 @@ class FileUploadService {
   }
 
   Future<bool> setFilePassword(String fileId, String password) async {
-    final debugService = DebugService();
+    final debugService = _debugService;
 
     try {
       final credentials = await _authService.getCredentials();
@@ -725,7 +760,7 @@ class FileUploadService {
   }
 
   Future<bool> deleteFile(String fileId) async {
-    final debugService = DebugService();
+    final debugService = _debugService;
 
     try {
       final credentials = await _authService.getCredentials();
@@ -779,7 +814,7 @@ class FileUploadService {
   }
 
   Future<bool> deleteUrl(String urlId) async {
-    final debugService = DebugService();
+    final debugService = _debugService;
 
     try {
       final credentials = await _authService.getCredentials();
@@ -853,7 +888,7 @@ class FileUploadService {
   }
 
   Future<bool> setUrlPassword(String urlId, String password) async {
-    final debugService = DebugService();
+    final debugService = _debugService;
 
     try {
       final credentials = await _authService.getCredentials();

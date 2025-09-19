@@ -48,11 +48,13 @@ class _MinimalTextFieldState extends State<MinimalTextField> {
   late FocusNode _focusNode;
   bool _isFocused = false;
   String? _errorText;
+  late final ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
+    _scrollController = ScrollController();
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
@@ -63,6 +65,7 @@ class _MinimalTextFieldState extends State<MinimalTextField> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -142,7 +145,7 @@ class _MinimalTextFieldState extends State<MinimalTextField> {
                   autocorrect: false,
                   enableSuggestions: false,
                   autofillHints: widget.autofillHints,
-                  scrollController: ScrollController(),
+                  scrollController: _scrollController,
                   scrollPhysics: const ClampingScrollPhysics(),
                   style: const TextStyle(
                     color: Colors.white,

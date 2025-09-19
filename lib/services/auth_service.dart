@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -29,6 +30,35 @@ class AuthService {
   static const String _cfClientIdKey = 'cf_client_id';
   static const String _cfClientSecretKey = 'cf_client_secret';
 
+  static bool _sensitiveDataMigrated = false;
+
+  Future<void> _ensurePrefsInitialized() async {
+    _prefs ??= await SharedPreferences.getInstance();
+  }
+
+  Future<void> _migrateSensitiveDataIfNeeded() async {
+    if (_sensitiveDataMigrated) return;
+    await _ensurePrefsInitialized();
+
+    Future<void> migrateKey(String key) async {
+      final legacyValue = _prefs!.getString(key);
+      if (legacyValue != null) {
+        final existingSecureValue = await _secureStorage.read(key: key);
+        if (existingSecureValue == null) {
+          await _secureStorage.write(key: key, value: legacyValue);
+        }
+        await _prefs!.remove(key);
+      }
+    }
+
+    await migrateKey(_passwordKey);
+    await migrateKey(_sessionCookieKey);
+    await migrateKey(_cfClientIdKey);
+    await migrateKey(_cfClientSecretKey);
+
+    _sensitiveDataMigrated = true;
+  }
+
   /// Saves user credentials securely.
   /// Username/password stored in SharedPreferences, OAuth tokens in secure storage.
   Future<void> saveCredentials({
@@ -38,30 +68,39 @@ class AuthService {
     String? cfClientId,
     String? cfClientSecret,
   }) async {
-    _prefs ??= await SharedPreferences.getInstance();
+    await _ensurePrefsInitialized();
+    await _migrateSensitiveDataIfNeeded();
 
     await _prefs!.setString(_ziplineUrlKey, ziplineUrl);
     await _prefs!.setString(_usernameKey, username);
-    await _prefs!.setString(_passwordKey, password);
 
-    if (cfClientId != null) {
-      await _prefs!.setString(_cfClientIdKey, cfClientId);
+    await _secureStorage.write(key: _passwordKey, value: password);
+
+    if (cfClientId != null && cfClientId.isNotEmpty) {
+      await _secureStorage.write(key: _cfClientIdKey, value: cfClientId);
+    } else {
+      await _secureStorage.delete(key: _cfClientIdKey);
     }
-    if (cfClientSecret != null) {
-      await _prefs!.setString(_cfClientSecretKey, cfClientSecret);
+
+    if (cfClientSecret != null && cfClientSecret.isNotEmpty) {
+      await _secureStorage.write(
+          key: _cfClientSecretKey, value: cfClientSecret);
+    } else {
+      await _secureStorage.delete(key: _cfClientSecretKey);
     }
   }
 
   Future<Map<String, String?>> getCredentials() async {
-    _prefs ??= await SharedPreferences.getInstance();
+    await _ensurePrefsInitialized();
+    await _migrateSensitiveDataIfNeeded();
 
     return {
       'ziplineUrl': _prefs!.getString(_ziplineUrlKey),
       'username': _prefs!.getString(_usernameKey),
-      'password': _prefs!.getString(_passwordKey),
-      'sessionCookie': _prefs!.getString(_sessionCookieKey),
-      'cfClientId': _prefs!.getString(_cfClientIdKey),
-      'cfClientSecret': _prefs!.getString(_cfClientSecretKey),
+      'password': await _secureStorage.read(key: _passwordKey),
+      'sessionCookie': await _secureStorage.read(key: _sessionCookieKey),
+      'cfClientId': await _secureStorage.read(key: _cfClientIdKey),
+      'cfClientSecret': await _secureStorage.read(key: _cfClientSecretKey),
     };
   }
 
@@ -76,6 +115,8 @@ class AuthService {
     final debugService = DebugService();
 
     try {
+      await _migrateSensitiveDataIfNeeded();
+
       debugService.logAuth('Starting authentication attempt', data: {
         'ziplineUrl': ziplineUrl,
         'username': username,
@@ -155,9 +196,13 @@ class AuthService {
           });
 
           if (sessionCookie != null) {
-            _prefs ??= await SharedPreferences.getInstance();
-            await _prefs!.setString(_sessionCookieKey, sessionCookie);
-            debugService.logAuth('Session cookie stored in SharedPreferences');
+            await _secureStorage.write(
+              key: _sessionCookieKey,
+              value: sessionCookie,
+            );
+            await _ensurePrefsInitialized();
+            await _prefs!.remove(_sessionCookieKey);
+            debugService.logAuth('Session cookie stored in secure storage');
 
             // Save credentials on successful authentication
             await saveCredentials(
@@ -257,7 +302,7 @@ class AuthService {
 
     if (success) {
       // Save the Zipline URL for later use
-      _prefs ??= await SharedPreferences.getInstance();
+      await _ensurePrefsInitialized();
       await _prefs!.setString(_ziplineUrlKey, ziplineUrl);
 
       // After successful OAuth login, fetch and store user info
@@ -325,8 +370,11 @@ class AuthService {
     // Clear OAuth session
     await _oAuthService.clearSession();
 
+    await _migrateSensitiveDataIfNeeded();
+
     // Clear credential session
-    _prefs ??= await SharedPreferences.getInstance();
+    await _secureStorage.delete(key: _sessionCookieKey);
+    await _ensurePrefsInitialized();
     await _prefs!.remove(_sessionCookieKey);
 
     // Disable biometric authentication on logout
@@ -338,9 +386,18 @@ class AuthService {
     // Clear OAuth session
     await _oAuthService.clearSession();
 
-    // Clear all stored credentials
-    _prefs ??= await SharedPreferences.getInstance();
-    await _prefs!.clear();
+    await _migrateSensitiveDataIfNeeded();
+    await _ensurePrefsInitialized();
+
+    // Remove only keys owned by AuthService
+    await _prefs!.remove(_ziplineUrlKey);
+    await _prefs!.remove(_usernameKey);
+    await _prefs!.remove(_sessionCookieKey);
+
+    await _secureStorage.delete(key: _passwordKey);
+    await _secureStorage.delete(key: _sessionCookieKey);
+    await _secureStorage.delete(key: _cfClientIdKey);
+    await _secureStorage.delete(key: _cfClientSecretKey);
   }
 
   // Get the current auth token (OAuth session cookie)
@@ -352,9 +409,8 @@ class AuthService {
     }
 
     // Fall back to credential-based session if available
-    _prefs ??= await SharedPreferences.getInstance();
-    final sessionCookie = _prefs!.getString(_sessionCookieKey);
-    return sessionCookie;
+    await _migrateSensitiveDataIfNeeded();
+    return await _secureStorage.read(key: _sessionCookieKey);
   }
 
   // Set the auth token (OAuth session cookie)
@@ -369,7 +425,7 @@ class AuthService {
 
     try {
       // Get the Zipline URL from preferences
-      _prefs ??= await SharedPreferences.getInstance();
+      await _ensurePrefsInitialized();
       final ziplineUrl = _prefs!.getString(_ziplineUrlKey);
 
       if (ziplineUrl == null) {
@@ -458,7 +514,17 @@ class AuthService {
 
   // Save username for OAuth users
   Future<void> saveOAuthUsername(String username) async {
-    _prefs ??= await SharedPreferences.getInstance();
+    await _ensurePrefsInitialized();
     await _prefs!.setString(_usernameKey, username);
+  }
+
+  @visibleForTesting
+  static Future<void> resetForTesting() async {
+    _prefs = null;
+    _sensitiveDataMigrated = false;
+    await _secureStorage.delete(key: _passwordKey);
+    await _secureStorage.delete(key: _sessionCookieKey);
+    await _secureStorage.delete(key: _cfClientIdKey);
+    await _secureStorage.delete(key: _cfClientSecretKey);
   }
 }
