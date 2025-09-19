@@ -630,9 +630,10 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen>
 
                           // Login form card
                           _buildCard(
-                            child: Form(
-                              key: _formKey,
-                              child: Column(
+                            child: AutofillGroup(
+                              child: Form(
+                                key: _formKey,
+                                child: Column(
                                 children: [
                                   _buildTextField(
                                     controller: _usernameController,
