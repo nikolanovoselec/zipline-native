@@ -634,74 +634,75 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen>
                               child: Form(
                                 key: _formKey,
                                 child: Column(
-                                children: [
-                                  _buildTextField(
-                                    controller: _usernameController,
-                                    label: 'Username',
-                                    placeholder: 'Enter your username',
-                                    icon: Icons.person_outline,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter your username';
-                                      }
-                                      return null;
-                                    },
-                                    textInputAction: TextInputAction.next,
-                                    autofillHints: const [
-                                      AutofillHints.username
-                                    ],
-                                  ),
-                                  const SizedBox(height: 20),
-                                  _buildTextField(
-                                    controller: _passwordController,
-                                    label: 'Password',
-                                    placeholder: 'Enter your password',
-                                    icon: Icons.lock_outline,
-                                    obscureText: _obscurePassword,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter your password';
-                                      }
-                                      return null;
-                                    },
-                                    textInputAction: TextInputAction.done,
-                                    onFieldSubmitted: (_) => _login(),
-                                    autofillHints: const [
-                                      AutofillHints.password
-                                    ],
-                                  ),
-                                  const SizedBox(height: 20),
-                                  _buildTextField(
-                                    controller: _twoFactorController,
-                                    label: '2FA Code (optional)',
-                                    placeholder: 'Enter 2FA code if enabled',
-                                    icon: Icons.security,
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly,
-                                    ],
-                                    textInputAction: TextInputAction.done,
-                                    onFieldSubmitted: (_) => _login(),
-                                    autofillHints: const [
-                                      AutofillHints.oneTimeCode
-                                    ],
-                                  ),
-                                  const SizedBox(height: 32),
-                                  _buildButton(
-                                    text: 'Sign In',
-                                    onPressed: _login,
-                                    isLoading: _isLoading,
-                                    icon: Icons.login,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  _buildButton(
-                                    text: 'Login with OIDC',
-                                    onPressed: _loginWithOIDC,
-                                    isLoading: false,
-                                    isPrimary: false,
-                                    icon: Icons.security,
-                                  ),
-                                ],
+                                  children: [
+                                    _buildTextField(
+                                      controller: _usernameController,
+                                      label: 'Username',
+                                      placeholder: 'Enter your username',
+                                      icon: Icons.person_outline,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your username';
+                                        }
+                                        return null;
+                                      },
+                                      textInputAction: TextInputAction.next,
+                                      autofillHints: const [
+                                        AutofillHints.username
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                    _buildTextField(
+                                      controller: _passwordController,
+                                      label: 'Password',
+                                      placeholder: 'Enter your password',
+                                      icon: Icons.lock_outline,
+                                      obscureText: _obscurePassword,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your password';
+                                        }
+                                        return null;
+                                      },
+                                      textInputAction: TextInputAction.done,
+                                      onFieldSubmitted: (_) => _login(),
+                                      autofillHints: const [
+                                        AutofillHints.password
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                    _buildTextField(
+                                      controller: _twoFactorController,
+                                      label: '2FA Code (optional)',
+                                      placeholder: 'Enter 2FA code if enabled',
+                                      icon: Icons.security,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.digitsOnly,
+                                      ],
+                                      textInputAction: TextInputAction.done,
+                                      onFieldSubmitted: (_) => _login(),
+                                      autofillHints: const [
+                                        AutofillHints.oneTimeCode
+                                      ],
+                                    ),
+                                    const SizedBox(height: 32),
+                                    _buildButton(
+                                      text: 'Sign In',
+                                      onPressed: _login,
+                                      isLoading: _isLoading,
+                                      icon: Icons.login,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    _buildButton(
+                                      text: 'Login with OIDC',
+                                      onPressed: _loginWithOIDC,
+                                      isLoading: false,
+                                      isPrimary: false,
+                                      icon: Icons.security,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
