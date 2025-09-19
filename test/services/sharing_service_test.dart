@@ -42,8 +42,7 @@ void main() {
 
     when(() => mockUploadQueueService.completionStream)
         .thenAnswer((_) => const Stream.empty());
-    when(() => mockActivityService.addActivity(any()))
-        .thenAnswer((_) async {});
+    when(() => mockActivityService.addActivity(any())).thenAnswer((_) async {});
 
     sharingService = SharingService();
   });
@@ -161,5 +160,49 @@ void main() {
     expect(capture['type'], 'file_upload');
     expect((capture['files'] as List).first['url'],
         'https://example.com/direct.txt');
+  });
+
+  test('reports progress for direct uploads when queue disabled', () async {
+    when(() => mockFileUploadService.uploadMultipleFiles(
+          any(),
+          onProgress: any(named: 'onProgress'),
+          useQueue: false,
+        )).thenAnswer((invocation) async {
+      final progressCallback =
+          invocation.namedArguments[#onProgress] as Function(double)?;
+      progressCallback?.call(0.25);
+      progressCallback?.call(0.75);
+      return [
+        {
+          'success': true,
+          'files': [
+            {
+              'id': 'id-3',
+              'name': 'share.txt',
+              'url': 'https://example.com/share.txt',
+              'size': 64,
+            }
+          ],
+        }
+      ];
+    });
+
+    final progressEvents = <double>[];
+    sharingService.onProgress = progressEvents.add;
+
+    final completer = Completer<List<Map<String, dynamic>>>();
+    sharingService.onUploadComplete = completer.complete;
+
+    await sharingService.uploadFiles([File('shared')], useQueue: false);
+
+    final results = await completer.future;
+    expect(results, hasLength(1));
+    expect(progressEvents, equals([0.25, 0.75, 1.0]));
+    verify(() => mockActivityService.addActivity(any())).called(1);
+    verify(() => mockFileUploadService.uploadMultipleFiles(
+          any(),
+          onProgress: any(named: 'onProgress'),
+          useQueue: false,
+        )).called(1);
   });
 }

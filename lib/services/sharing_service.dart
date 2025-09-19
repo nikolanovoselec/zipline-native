@@ -18,6 +18,7 @@ class SharingService {
   SharingService._internal();
 
   Function(List<File>)? onFilesShared;
+  Function(double progress)? onProgress;
   Function(String)? onError;
   Function(List<Map<String, dynamic>>)? onUploadComplete;
 
@@ -27,19 +28,24 @@ class SharingService {
   final Uuid _uuid = const Uuid();
 
   void initialize() {
-    _queueSubscription ??=
-        _queueService.completionStream.listen((event) {
+    _queueSubscription ??= _queueService.completionStream.listen((event) {
       unawaited(_handleQueueCompletion(event));
     });
   }
 
-  Future<void> uploadFiles(List<File> files) async {
+  Future<void> uploadFiles(
+    List<File> files, {
+    bool useQueue = true,
+  }) async {
     initialize();
     try {
       onFilesShared?.call(files);
       final results = await _uploadService.uploadMultipleFiles(
         files,
-        useQueue: true,
+        onProgress: !useQueue && onProgress != null
+            ? (progress) => onProgress?.call(progress.clamp(0.0, 1.0))
+            : null,
+        useQueue: useQueue,
       );
       final queuedEntry = results.firstWhere(
         (result) => result['queued'] == true && result['taskIds'] is List,
@@ -54,6 +60,7 @@ class SharingService {
               'Upload failed';
           onError?.call(message);
         } else if (results.isNotEmpty) {
+          onProgress?.call(1.0);
           onUploadComplete?.call(results);
           await _recordActivities(results);
         }
@@ -73,6 +80,10 @@ class SharingService {
       }
     } catch (e) {
       onError?.call('Upload failed: $e');
+    } finally {
+      if (!useQueue) {
+        unawaited(_cleanupTemporaryFiles(files));
+      }
     }
   }
 
@@ -148,6 +159,24 @@ class SharingService {
           'success': result['success'] == true,
         };
         await _activityService.addActivity(entry);
+      }
+    }
+  }
+
+  Future<void> _cleanupTemporaryFiles(List<File> files) async {
+    for (final file in files) {
+      final path = file.path;
+      if (!path.contains(
+          '${Platform.pathSeparator}shared${Platform.pathSeparator}')) {
+        continue;
+      }
+
+      try {
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } catch (_) {
+        // Best-effort cleanup; ignore failures.
       }
     }
   }

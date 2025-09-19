@@ -166,10 +166,18 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     };
 
+    _sharingService.onProgress = (double progress) {
+      if (!mounted) return;
+      setState(() {
+        _uploadProgress = progress;
+      });
+    };
+
     _sharingService.onUploadComplete = (List<Map<String, dynamic>> results) {
       setState(() {
         _uploadHistory.insertAll(0, results);
         _isUploading = false;
+        _uploadProgress = 0.0;
       });
       HapticFeedback.lightImpact();
       unawaited(_processUploadResults(results));
@@ -178,11 +186,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _sharingService.onError = (String error) {
       setState(() {
         _isUploading = false;
+        _uploadProgress = 0.0;
         _isUrlShortening = false;
       });
       _showErrorSnackBar(error);
     };
-
   }
 
   Future<void> _pickAndUploadFiles() async {
@@ -229,7 +237,12 @@ class _HomeScreenState extends State<HomeScreen> {
         _isUploading = true;
         _uploadProgress = 0.0;
       });
-      unawaited(_sharingService.uploadFiles(sharedFiles));
+      unawaited(
+        _sharingService.uploadFiles(
+          sharedFiles,
+          useQueue: false,
+        ),
+      );
     } else if (sharedText != null) {
       // Handle shared URL
       _urlController.text = sharedText;
@@ -321,8 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final successCount = results.where((r) => r['success'] == true).length;
         if (successCount > 0) {
           HapticFeedback.lightImpact();
-          locator.debug
-              .log('UPLOAD', 'Upload success, preparing post actions');
+          locator.debug.log('UPLOAD', 'Upload success, preparing post actions');
           await _processUploadResults(results);
         } else {
           _showErrorSnackBar('Upload failed for all files');
@@ -514,8 +526,8 @@ class _HomeScreenState extends State<HomeScreen> {
         results.where((result) => result['success'] == true).toList();
 
     if (successful.isEmpty) {
-      locator.debug
-          .log(_shareLogTag, 'No successful uploads to process', level: 'DEBUG');
+      locator.debug.log(_shareLogTag, 'No successful uploads to process',
+          level: 'DEBUG');
       return;
     }
 
@@ -526,7 +538,8 @@ class _HomeScreenState extends State<HomeScreen> {
         final url = file?['url'] as String?;
         final name = file?['name'] as String?;
         if (url != null) {
-          locator.debug.log(_shareLogTag, 'Processed single upload result', data: {
+          locator.debug
+              .log(_shareLogTag, 'Processed single upload result', data: {
             'displayName': name,
             'url': url,
           });
@@ -870,42 +883,43 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 10.0), // Aligns title with button center
+                          padding: const EdgeInsets.only(
+                              top: 10.0), // Aligns title with button center
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Zipline Sharing',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.94),
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            if (_ziplineUrl != null) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                Uri.tryParse(_ziplineUrl!)?.host ??
-                                    _ziplineUrl!,
                                 style: TextStyle(
-                                  color: const Color(0xFF94A3B8)
-                                      .withValues(alpha: 0.65),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w300,
+                                  color: Colors.white.withValues(alpha: 0.94),
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ],
-                            const SizedBox(height: 8),
-                            if (_username != null)
-                              Text(
-                                'Welcome, $_username',
-                                style: TextStyle(
-                                  color: const Color(0xFF94A3B8)
-                                      .withValues(alpha: 0.77),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w300,
+                              if (_ziplineUrl != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  Uri.tryParse(_ziplineUrl!)?.host ??
+                                      _ziplineUrl!,
+                                  style: TextStyle(
+                                    color: const Color(0xFF94A3B8)
+                                        .withValues(alpha: 0.65),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w300,
+                                  ),
                                 ),
-                              ),
+                              ],
+                              const SizedBox(height: 8),
+                              if (_username != null)
+                                Text(
+                                  'Welcome, $_username',
+                                  style: TextStyle(
+                                    color: const Color(0xFF94A3B8)
+                                        .withValues(alpha: 0.77),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
                             ],
                           ),
                         ),
@@ -914,23 +928,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           // Open in browser button with improved touch handling
                           GestureDetector(
-                            behavior: HitTestBehavior.opaque, // Ensures all taps are captured
+                            behavior: HitTestBehavior
+                                .opaque, // Ensures all taps are captured
                             onTap: _openServerInBrowser,
                             child: Container(
-                              padding: const EdgeInsets.all(10), // Increased from 6px to 10px for better touch area
+                              padding: const EdgeInsets.all(
+                                  10), // Increased from 6px to 10px for better touch area
                               child: Container(
                                 width: 40, // Increased from 36px to 40px
                                 height: 40, // Increased from 36px to 40px
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.08), // Slightly more visible
+                                  color: Colors.white.withValues(
+                                      alpha: 0.08), // Slightly more visible
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.2), // More visible border
+                                    color: Colors.white.withValues(
+                                        alpha: 0.2), // More visible border
                                     width: 0.5, // Slightly thicker border
                                   ),
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.2),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.2),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -938,17 +957,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 child: Icon(
                                   Icons.open_in_browser_outlined,
-                                  color: const Color(0xFF94A3B8)
-                                      .withValues(alpha: 0.9), // More visible icon
+                                  color: const Color(0xFF94A3B8).withValues(
+                                      alpha: 0.9), // More visible icon
                                   size: 20, // Increased from 16px to 20px
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 4), // Reduced from 8px to 4px to account for increased padding
+                          const SizedBox(
+                              width:
+                                  4), // Reduced from 8px to 4px to account for increased padding
                           // Settings button with improved touch handling
                           GestureDetector(
-                            behavior: HitTestBehavior.opaque, // Ensures all taps are captured
+                            behavior: HitTestBehavior
+                                .opaque, // Ensures all taps are captured
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -957,20 +979,24 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             },
                             child: Container(
-                              padding: const EdgeInsets.all(10), // Increased from 6px to 10px for better touch area
+                              padding: const EdgeInsets.all(
+                                  10), // Increased from 6px to 10px for better touch area
                               child: Container(
                                 width: 40, // Increased from 36px to 40px
                                 height: 40, // Increased from 36px to 40px
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.08), // Slightly more visible
+                                  color: Colors.white.withValues(
+                                      alpha: 0.08), // Slightly more visible
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.2), // More visible border
+                                    color: Colors.white.withValues(
+                                        alpha: 0.2), // More visible border
                                     width: 0.5, // Slightly thicker border
                                   ),
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.2),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.2),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -978,8 +1004,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 child: Icon(
                                   Icons.settings_outlined,
-                                  color: const Color(0xFF94A3B8)
-                                      .withValues(alpha: 0.9), // More visible icon
+                                  color: const Color(0xFF94A3B8).withValues(
+                                      alpha: 0.9), // More visible icon
                                   size: 20, // Increased from 16px to 20px
                                 ),
                               ),
@@ -1583,20 +1609,18 @@ class _HeaderNotificationOverlayState extends State<_HeaderNotificationOverlay>
                       child: Text(
                         widget.message,
                         textAlign: TextAlign.center,
-                        style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      decoration: TextDecoration.none,
+                                    ) ??
+                                const TextStyle(
                                   color: Colors.white,
+                                  fontSize: 24,
                                   fontWeight: FontWeight.w600,
                                   decoration: TextDecoration.none,
-                                ) ??
-                            const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                              decoration: TextDecoration.none,
-                            ),
+                                ),
                       ),
                     ),
                   ),
