@@ -18,9 +18,9 @@ void main() {
     await service.saveCredentials(
       ziplineUrl: 'https://zipline.example.com',
       username: 'nerd',
-      password: 'superSecret',
-      cfClientId: 'client123',
-      cfClientSecret: 'secret456',
+      password: 'tmpPwd_c1l4f',
+      cfClientId: 'cfId_ebrumfnk',
+      cfClientSecret: 'cfSecret_3mnkbt5f',
     );
 
     final prefs = await SharedPreferences.getInstance();
@@ -30,9 +30,9 @@ void main() {
     expect(prefs.getString('cf_client_secret'), isNull);
 
     const storage = FlutterSecureStorage();
-    expect(await storage.read(key: 'zipline_password'), 'superSecret');
-    expect(await storage.read(key: 'cf_client_id'), 'client123');
-    expect(await storage.read(key: 'cf_client_secret'), 'secret456');
+    expect(await storage.read(key: 'zipline_password'), 'tmpPwd_c1l4f');
+    expect(await storage.read(key: 'cf_client_id'), 'cfId_ebrumfnk');
+    expect(await storage.read(key: 'cf_client_secret'), 'cfSecret_3mnkbt5f');
   });
 
   test('clearAllCredentials preserves unrelated preferences', () async {
@@ -42,10 +42,10 @@ void main() {
       'theme_mode': 'dark',
     });
     FlutterSecureStorage.setMockInitialValues({
-      'zipline_password': 'abc',
+      'zipline_password': 'tmpPwd_c1l4f',
       'session_cookie': 'cookie',
-      'cf_client_id': 'id',
-      'cf_client_secret': 'secret',
+      'cf_client_id': 'cfId_vogqs',
+      'cf_client_secret': 'cfSecret_tcwgz',
     });
     await AuthService.resetForTesting();
 
