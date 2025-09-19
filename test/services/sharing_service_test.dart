@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:test/test.dart';
 import 'package:zipline_native_app/services/activity_service.dart';
 import 'package:zipline_native_app/services/file_upload_service.dart';
 import 'package:zipline_native_app/services/sharing_service.dart';
@@ -16,11 +16,12 @@ class MockUploadQueueService extends Mock implements UploadQueueService {}
 class MockActivityService extends Mock implements ActivityService {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   final getIt = GetIt.instance;
+
   late MockFileUploadService mockFileUploadService;
   late MockUploadQueueService mockUploadQueueService;
   late MockActivityService mockActivityService;
-  late StreamController<Map<String, dynamic>> completionController;
   late SharingService sharingService;
 
   setUpAll(() {
@@ -29,28 +30,25 @@ void main() {
   });
 
   setUp(() {
-    SharingService().dispose();
     getIt.reset();
 
     mockFileUploadService = MockFileUploadService();
     mockUploadQueueService = MockUploadQueueService();
     mockActivityService = MockActivityService();
-    completionController = StreamController<Map<String, dynamic>>.broadcast();
 
     getIt.registerSingleton<FileUploadService>(mockFileUploadService);
     getIt.registerSingleton<UploadQueueService>(mockUploadQueueService);
     getIt.registerSingleton<ActivityService>(mockActivityService);
 
     when(() => mockUploadQueueService.completionStream)
-        .thenAnswer((_) => completionController.stream);
+        .thenAnswer((_) => const Stream.empty());
     when(() => mockActivityService.addActivity(any()))
         .thenAnswer((_) async {});
 
     sharingService = SharingService();
   });
 
-  tearDown(() async {
-    await completionController.close();
+  tearDown(() {
     sharingService.dispose();
     getIt.reset();
   });
@@ -76,7 +74,7 @@ void main() {
 
     await sharingService.uploadFiles([File('dummy')]);
 
-    completionController.add({
+    await sharingService.handleQueueEventForTest({
       'taskId': 'task-1',
       'success': true,
       'files': [
@@ -119,13 +117,15 @@ void main() {
 
     await sharingService.uploadFiles([File('dummy')]);
 
-    completionController.add({
+    await sharingService.handleQueueEventForTest({
       'taskId': 'task-err',
       'success': false,
       'error': 'network down',
     });
 
-    expect(await errorCompleter.future, 'network down');
+    final error = await errorCompleter.future
+        .timeout(const Duration(seconds: 1), onTimeout: () => 'timeout');
+    expect(error, 'network down');
     verifyNever(() => mockActivityService.addActivity(any()));
   });
 

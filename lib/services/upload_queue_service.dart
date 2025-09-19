@@ -52,7 +52,6 @@ class UploadTask {
 class UploadQueueService {
   static final UploadQueueService _instance = UploadQueueService._internal();
   factory UploadQueueService() => _instance;
-  UploadQueueService._internal();
 
   static bool _autoProcessEnabled = true;
   static final Uuid _uuid = const Uuid();
@@ -70,7 +69,7 @@ class UploadQueueService {
     if (getIt.isRegistered<DebugService>()) {
       return getIt<DebugService>();
     }
-    throw StateError('DebugService has not been registered in GetIt');
+    return DebugService();
   }
 
   final Dio _dio = Dio();

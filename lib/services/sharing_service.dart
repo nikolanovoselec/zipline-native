@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:uuid/uuid.dart';
 import '../core/service_locator.dart';
@@ -27,7 +28,9 @@ class SharingService {
 
   void initialize() {
     _queueSubscription ??=
-        _queueService.completionStream.listen(_handleQueueCompletion);
+        _queueService.completionStream.listen((event) {
+      unawaited(_handleQueueCompletion(event));
+    });
   }
 
   Future<void> uploadFiles(List<File> files) async {
@@ -79,7 +82,7 @@ class SharingService {
     _taskIdToSession.clear();
   }
 
-  void _handleQueueCompletion(Map<String, dynamic> event) async {
+  Future<void> _handleQueueCompletion(Map<String, dynamic> event) async {
     final taskId = event['taskId']?.toString();
     if (taskId == null) {
       return;
@@ -147,6 +150,11 @@ class SharingService {
         await _activityService.addActivity(entry);
       }
     }
+  }
+
+  @visibleForTesting
+  Future<void> handleQueueEventForTest(Map<String, dynamic> event) async {
+    await _handleQueueCompletion(event);
   }
 }
 
