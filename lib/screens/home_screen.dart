@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -688,16 +689,22 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _deleteRecentItem(Map<String, dynamic> item) async {
     await HapticFeedback.mediumImpact();
 
-    // Remove from local activity list immediately for responsive UI
+    final itemIndex = _uploadHistory.indexOf(item);
+    if (itemIndex == -1) {
+      locator.debug.log('DELETE', 'Item not found in history during delete',
+          data: {'item': item});
+      return;
+    }
+
+    final restoredSnapshot =
+        jsonDecode(jsonEncode(item)) as Map<String, dynamic>;
+
+    // Optimistically remove from list for snappy UI
     setState(() {
-      _uploadHistory.remove(item);
+      _uploadHistory.removeAt(itemIndex);
     });
 
-    // Save updated activity list
-    await _activityService.saveActivities(_uploadHistory);
-
-    // If item has an ID, try to delete from server
-    // For file uploads, ID is nested in files[0]['id'], for URLs it's at top level
+    // Locate remote identifier (files store IDs in nested payloads)
     String? itemId;
     if (item['type'] == 'file_upload') {
       itemId = item['files']?[0]?['id'] as String?;
@@ -705,37 +712,59 @@ class _HomeScreenState extends State<HomeScreen> {
       itemId = item['id'] as String?;
     }
 
-    locator.debug.log('DELETE', 'Attempting to delete item', data: {
-      'itemId': itemId,
-      'hasItemId': itemId != null,
-      'itemType': item['type'],
-      'itemKeys': item.keys.toList(),
-    });
-
-    if (itemId != null) {
-      bool success;
-      if (item['type'] == 'url_shortening') {
-        // Use URL-specific delete function
-        success = await _uploadService.deleteUrl(itemId);
-      } else {
-        // Use file-specific delete function
-        success = await _uploadService.deleteFile(itemId);
-      }
-      locator.debug.log('DELETE', 'Delete operation result', data: {
-        'itemId': itemId,
-        'itemType': item['type'],
-        'success': success,
+    if (itemId == null) {
+      locator.debug.log('DELETE', 'Cannot delete - missing remote ID',
+          data: {'item': item});
+      setState(() {
+        _uploadHistory.insert(itemIndex, restoredSnapshot);
       });
-    } else {
-      locator.debug.log('DELETE', 'Cannot delete - no ID available', data: {
-        'item': item,
-      });
+      _showErrorSnackBar('Could not delete item – missing remote reference.');
+      return;
     }
 
-    _showHeaderNotification(
-      'Item Deleted!',
-      Colors.red.shade600,
-    );
+    locator.debug.log('DELETE', 'Attempting to delete item', data: {
+      'itemId': itemId,
+      'itemType': item['type'],
+    });
+
+    bool success = false;
+    try {
+      if (item['type'] == 'url_shortening') {
+        success = await _uploadService.deleteUrl(itemId);
+      } else {
+        success = await _uploadService.deleteFile(itemId);
+      }
+    } catch (e, stackTrace) {
+      locator.debug.logError('DELETE', 'Delete request threw',
+          error: e,
+          stackTrace: stackTrace,
+          data: {'itemId': itemId, 'itemType': item['type']});
+      success = false;
+    }
+
+    if (success) {
+      locator.debug.log('DELETE', 'Delete operation succeeded', data: {
+        'itemId': itemId,
+        'itemType': item['type'],
+      });
+      await _activityService.saveActivities(_uploadHistory);
+      _showHeaderNotification(
+        'Item Deleted!',
+        Colors.red.shade600,
+      );
+    } else {
+      locator.debug.log('DELETE', 'Delete operation failed', data: {
+        'itemId': itemId,
+        'itemType': item['type'],
+      });
+      if (!mounted) return;
+      setState(() {
+        _uploadHistory.insert(itemIndex, restoredSnapshot);
+      });
+      await _activityService.saveActivities(_uploadHistory);
+      _showErrorSnackBar(
+          'Unable to delete item from Zipline. Please try again.');
+    }
   }
 
   Future<void> _setRecentItemPassword(Map<String, dynamic> item) async {
@@ -829,7 +858,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (result != null) {
-      // Extract ID based on item type
       String? itemId;
       if (item['type'] == 'file_upload') {
         itemId = item['files']?[0]?['id'] as String?;
@@ -837,27 +865,62 @@ class _HomeScreenState extends State<HomeScreen> {
         itemId = item['id'] as String?;
       }
 
-      if (itemId != null) {
-        bool success;
-        if (item['type'] == 'url_shortening') {
-          // Use URL-specific password function
-          success = await _uploadService.setUrlPassword(itemId, result);
-        } else {
-          // Use file-specific password function
-          success = await _uploadService.setFilePassword(itemId, result);
-        }
-
-        if (success) {
-          setState(() {
-            item['hasPassword'] = true;
-          });
-        }
+      if (itemId == null) {
+        locator.debug.log('PASSWORD', 'Cannot protect item – missing ID',
+            data: {'item': item});
+        _showErrorSnackBar(
+            'Unable to protect item – missing remote reference.');
+        return;
       }
 
-      _showHeaderNotification(
-        'Password Added!',
-        Colors.blue.shade600,
-      );
+      locator.debug.log('PASSWORD', 'Attempting to set password', data: {
+        'itemId': itemId,
+        'itemType': item['type'],
+      });
+
+      bool success = false;
+      try {
+        if (item['type'] == 'url_shortening') {
+          success = await _uploadService.setUrlPassword(itemId, result);
+        } else {
+          success = await _uploadService.setFilePassword(itemId, result);
+        }
+      } catch (e, stackTrace) {
+        locator.debug.logError('PASSWORD', 'Password request threw',
+            error: e,
+            stackTrace: stackTrace,
+            data: {'itemId': itemId, 'itemType': item['type']});
+        success = false;
+      }
+
+      if (success) {
+        locator.debug.log('PASSWORD', 'Password applied successfully', data: {
+          'itemId': itemId,
+          'itemType': item['type'],
+        });
+        setState(() {
+          item['hasPassword'] = true;
+          if (item['type'] == 'file_upload' &&
+              item['files'] is List &&
+              item['files'].isNotEmpty &&
+              item['files'][0] is Map<String, dynamic>) {
+            (item['files'][0] as Map<String, dynamic>)['hasPassword'] = true;
+          }
+        });
+        await _activityService.saveActivities(_uploadHistory);
+        _showHeaderNotification(
+          'Password Added!',
+          Colors.blue.shade600,
+        );
+      } else {
+        locator.debug.log('PASSWORD', 'Failed to apply password', data: {
+          'itemId': itemId,
+          'itemType': item['type'],
+        });
+        _showErrorSnackBar(
+          'Unable to protect item on Zipline. Please try again.',
+        );
+      }
     }
   }
 
