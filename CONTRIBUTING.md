@@ -35,7 +35,7 @@ The process is pretty standard:
 1. Fork the repo
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Run tests (if they exist... they should exist... they might not exist)
+4. Run the checks (`flutter analyze --no-fatal-infos`, `flutter test`, `npm test --prefix cloudflare-oauth-redirect`)
 5. Commit your changes (`git commit -m 'Add some amazing feature'`)
 6. Push to the branch (`git push origin feature/amazing-feature`)
 7. Open a Pull Request
