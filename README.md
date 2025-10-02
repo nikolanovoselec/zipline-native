@@ -179,6 +179,8 @@ Your shiny new APKs will appear in `build/app/outputs/flutter-apk/`.
 ```bash
 flutter analyze --no-fatal-infos
 
+flutter test
+
 ### Step 5: The OAuth Sidequest (100% Optional!)
 
 **IMPORTANT**: OAuth/OIDC is completely optional! Regular username/password authentication with Zipline works perfectly fine. This entire section can be ignored if OAuth is not needed.
