@@ -43,6 +43,7 @@ If you want to port this to other platforms, PRs are welcome! Just know that you
 Before you embark on this journey, make sure you have:
 
 - **Flutter SDK 3.35.0+** (because we're modern like that)
+- **Node.js 18+** (for the Cloudflare worker toolkit and tests)
 - **Android Studio** (or VS Code if you're rebellious)
 - **Java 11+** (yes, it's still alive)
 - **A Zipline server** (kind of important - see below)
