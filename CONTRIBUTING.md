@@ -109,7 +109,7 @@ Good examples:
 ### Running Tests
 
 ```bash
-# Run all tests
+# Static analysis
 flutter test
 
 # Run with coverage
