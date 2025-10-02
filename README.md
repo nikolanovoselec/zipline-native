@@ -187,7 +187,7 @@ npm test --prefix cloudflare-oauth-redirect
 
 If every command passes, you’re safe to ship the split APKs to testers, MDM, or your preferred app store.
 
-### Step 5: The OAuth Sidequest (100% Optional!)
+### Step 6: The OAuth Sidequest (100% Optional!)
 
 **IMPORTANT**: OAuth/OIDC is completely optional! Regular username/password authentication with Zipline works perfectly fine. This entire section can be ignored if OAuth is not needed.
 
