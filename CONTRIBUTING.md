@@ -111,10 +111,13 @@ Good examples:
 ```bash
 # Static analysis
 flutter analyze --no-fatal-infos
- 
+# Dart / Flutter test suite
 flutter test
 
-# Run with coverage
+# Cloudflare Worker tests
+npm test --prefix cloudflare-oauth-redirect
+
+# Optional coverage run
 flutter test --coverage
 ```
 
