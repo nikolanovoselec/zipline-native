@@ -174,6 +174,8 @@ flutter build apk --release --split-per-abi \
 
 Your shiny new APKs will appear in `build/app/outputs/flutter-apk/`. 
 
+### Step 5: Verify Everything Works
+
 ### Step 5: The OAuth Sidequest (100% Optional!)
 
 **IMPORTANT**: OAuth/OIDC is completely optional! Regular username/password authentication with Zipline works perfectly fine. This entire section can be ignored if OAuth is not needed.
