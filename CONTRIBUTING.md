@@ -44,7 +44,7 @@ The process is pretty standard:
 
 ### Prerequisites
 
-- Flutter SDK 3.0+
+- Flutter SDK 3.35.0+
 - Android Studio or VS Code
 - Android device or emulator for testing
 - A Zipline server instance for testing
