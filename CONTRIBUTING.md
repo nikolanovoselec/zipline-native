@@ -48,7 +48,7 @@ The process is pretty standard:
 - Node.js 18+
 - Android Studio or VS Code
 - Android device or emulator for testing
-- A Zipline server instance for testing
+- A Zipline server instance for integration tests
 
 ### Getting Started
 
