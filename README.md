@@ -21,7 +21,7 @@ Fast forward through a caffeine-fueled development sprint, and here we are: a na
 The long version for those who actually read documentation (bless your soul):
 
 - **Single-tap sharing**: Share from literally any Android app directly to your Zipline instance
-- **OAuth/OIDC support** (optional): For fancy authentication, or just use username/password
+- **OAuth/OIDC support** (optional): Pair the app with the bundled Cloudflare Worker for secure browser hand-offs, or stick with username/password
 - **Inline upload progress**: Watch the Upload Files card glide from 0→100% while files head upstream
 - **Biometric authentication**: Use your face/finger/secret handshake to login
 - **URL shortening**: Turn those ugly long links into beautiful short ones
