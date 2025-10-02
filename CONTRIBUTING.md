@@ -110,6 +110,8 @@ Good examples:
 
 ```bash
 # Static analysis
+flutter analyze --no-fatal-infos
+ 
 flutter test
 
 # Run with coverage
