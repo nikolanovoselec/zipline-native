@@ -247,7 +247,7 @@ This tells Android that the app can handle any URL starting with `zipline://`. T
 
 ##### Prerequisites
 - Cloudflare account (free plan works)
-- Node.js installed locally
+- Node.js 18+ installed locally
 - Your Zipline server configured with OAuth/OIDC
 
 ##### Step 1: Get Your Cloudflare Account ID
