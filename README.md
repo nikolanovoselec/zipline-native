@@ -57,7 +57,7 @@ Before you embark on this journey, make sure you have:
 - Copy `cloudflare-oauth-redirect/wrangler.toml.example` to `cloudflare-oauth-redirect/wrangler.toml` and fill in your Cloudflare account details
 - Inside `cloudflare-oauth-redirect`, run `npm install` so Wrangler can actually build the worker
 - Store your keystore details in `android/key.properties` and keep it out of source control
-- (Optional) Run the new smoke tests with `flutter test` and `npm test --prefix cloudflare-oauth-redirect`
+- Run the test suites early with `flutter test` and `npm test --prefix cloudflare-oauth-redirect`
 
 ## Don't Have a Zipline Server Yet?
 
