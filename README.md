@@ -1,8 +1,8 @@
 # Zipline Native Client: Because Your Phone Deserves Better Than Web Forms
 
-[![Version](https://img.shields.io/badge/Version-v1.0.5-blue)](https://github.com/nikolanovoselec/zipline-native/releases)
+[![Version](https://img.shields.io/badge/Version-v1.0.6-blue)](https://github.com/nikolanovoselec/zipline-native/releases)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![Flutter Version](https://img.shields.io/badge/Flutter-3.24.5+-blue)](https://flutter.dev/)
+[![Flutter Version](https://img.shields.io/badge/Flutter-3.35.5+-blue)](https://flutter.dev/)
 [![Android](https://img.shields.io/badge/Android-8.0%2B-green)](https://developer.android.com/)
 [![Works on my machine](https://img.shields.io/badge/Works%20on-my%20machine-success)](https://github.com/nikolanovoselec/zipline-native)
 
@@ -22,7 +22,7 @@ The long version for those who actually read documentation (bless your soul):
 
 - **Single-tap sharing**: Share from literally any Android app directly to your Zipline instance
 - **OAuth/OIDC support** (optional): For fancy authentication, or just use username/password
-- **Upload queue management**: Like a bouncer for your files, but friendlier
+- **Inline upload progress**: Watch the Upload Files card glide from 0→100% while files head upstream
 - **Biometric authentication**: Use your face/finger/secret handshake to login
 - **URL shortening**: Turn those ugly long links into beautiful short ones
 - **Dark mode**: Because I'm into cybersecurity and my retinas are already damaged enough. (Also, I was too lazy to implement light mode. Maybe someday... probably not.)
@@ -42,7 +42,7 @@ If you want to port this to other platforms, PRs are welcome! Just know that you
 
 Before you embark on this journey, make sure you have:
 
-- **Flutter SDK 3.0+** (because we're modern like that)
+- **Flutter SDK 3.35.0+** (because we're modern like that)
 - **Android Studio** (or VS Code if you're rebellious)
 - **Java 11+** (yes, it's still alive)
 - **A Zipline server** (kind of important - see below)
