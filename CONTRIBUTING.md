@@ -59,6 +59,7 @@ cd zipline-native
 
 # Install dependencies
 flutter pub get
+npm install --prefix cloudflare-oauth-redirect
 
 # Run the app
 flutter run
