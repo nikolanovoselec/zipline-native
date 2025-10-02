@@ -168,7 +168,7 @@ iOS should theoretically work but is untested. If you have an iPhone and want to
 
 Current areas that could use contributions:
 
-- [ ] Comprehensive test coverage
+- [ ] Comprehensive test coverage across services and widgets
 - [ ] iOS testing and fixes
 - [ ] Tablet UI optimization
 - [ ] Localization/internationalization
@@ -202,4 +202,4 @@ Remember: this project started because someone wanted to share files from their 
 
 ---
 
-*P.S. - If you're contributing AI-generated code, at least test it first. The AI that wrote 90% of this app would appreciate it.*
+*P.S. – If you lean on AI tooling, double-check the output and run the full test suite before opening your PR.*
