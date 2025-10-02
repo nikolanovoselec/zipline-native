@@ -13,6 +13,7 @@ class AppState extends ChangeNotifier {
   // Upload state
   List<UploadTask> _uploadTasks = [];
   bool _uploadQueueVisible = false;
+  bool _uploadQueueUiEnabled = false;
 
   // UI state
   bool _isLoading = false;
@@ -27,6 +28,7 @@ class AppState extends ChangeNotifier {
   bool get isAuthenticated => _isAuthenticated;
   List<UploadTask> get uploadTasks => _uploadTasks;
   bool get uploadQueueVisible => _uploadQueueVisible;
+  bool get uploadQueueUiEnabled => _uploadQueueUiEnabled;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -82,6 +84,14 @@ class AppState extends ChangeNotifier {
 
   void hideUploadQueue() {
     _uploadQueueVisible = false;
+    notifyListeners();
+  }
+
+  void setUploadQueueUiEnabled(bool enabled) {
+    if (_uploadQueueUiEnabled == enabled) {
+      return;
+    }
+    _uploadQueueUiEnabled = enabled;
     notifyListeners();
   }
 

@@ -10,6 +10,7 @@ class SharingService {
   SharingService._internal();
 
   Function(List<File>)? onFilesShared;
+  Function(double progress)? onProgress;
   Function(String)? onError;
   Function(List<Map<String, dynamic>>)? onUploadComplete;
 
@@ -20,9 +21,13 @@ class SharingService {
   Future<void> uploadFiles(List<File> files) async {
     try {
       onFilesShared?.call(files);
+      onProgress?.call(0.0);
+
       final results = await _uploadService.uploadMultipleFiles(
         files,
-        useQueue: true,
+        onProgress: (progress) {
+          onProgress?.call(progress);
+        },
       );
       onUploadComplete?.call(results);
     } catch (e) {

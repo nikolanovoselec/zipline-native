@@ -48,6 +48,9 @@ class _UploadQueueOverlayState extends State<UploadQueueOverlay>
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, appState, child) {
+        if (!appState.uploadQueueUiEnabled) {
+          return widget.child;
+        }
         // Show/hide animation based on state
         if (appState.hasActiveUploads && appState.uploadQueueVisible) {
           _animationController.forward();
@@ -303,6 +306,9 @@ class UploadQueueFloatingButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AppState>(
       builder: (context, appState, child) {
+        if (!appState.uploadQueueUiEnabled) {
+          return const SizedBox.shrink();
+        }
         if (!appState.hasActiveUploads || appState.uploadQueueVisible) {
           return const SizedBox.shrink();
         }

@@ -158,17 +158,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _setupSharingService() {
-    // _sharingService.onFilesShared = (List<File> files) {
-    //   setState(() {
-    //     _isUploading = true;
-    //   });
-    //   _showSuccessSnackBar('Received ${files.length} file(s) to upload');
-    // };
+    _sharingService.onFilesShared = (List<File> files) {
+      if (!mounted) return;
+      setState(() {
+        _isUploading = true;
+        _uploadProgress = 0.0;
+      });
+    };
+
+    _sharingService.onProgress = (double progress) {
+      if (!mounted) return;
+      setState(() {
+        _uploadProgress = progress;
+      });
+    };
 
     _sharingService.onUploadComplete = (List<Map<String, dynamic>> results) {
       setState(() {
         _uploadHistory.insertAll(0, results);
         _isUploading = false;
+        _uploadProgress = 0.0;
       });
       HapticFeedback.lightImpact();
       unawaited(_processUploadResults(results));
@@ -178,6 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _isUploading = false;
         _isUrlShortening = false;
+        _uploadProgress = 0.0;
       });
       _showErrorSnackBar(error);
     };
