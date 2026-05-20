@@ -1,0 +1,16 @@
+mode: interactive
+requested_mode_post_transition: unleashed
+transition: true
+enforce_tdd: false
+adr_marker_style: ad
+
+# Phase 5/6 knobs (defaults)
+domain_community_threshold: 50
+subsystem_lane_threshold: 50
+subsystem_prefix_coherence: 0.6
+scaffold_iteration_limit: 5
+
+# Test discovery
+test_globs:
+  - "test/**/*_test.dart"
+  - "cloudflare-oauth-redirect/tests/**/*.test.js"
