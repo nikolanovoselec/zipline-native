@@ -70,3 +70,7 @@ app.*.map.json
 .flutter-plugins-dependencies
 
 android/key.properties
+
+# graphify outputs
+graphify-out/
+.graphify_*
