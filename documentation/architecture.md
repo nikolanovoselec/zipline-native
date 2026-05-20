@@ -122,7 +122,16 @@ Exhaustive listing of every code file in the primary source tree. The `Implement
 | `lib/widgets/upload_queue_widget.dart` | Per-upload row rendering | [REQ-UPLOAD-002](../sdd/upload.md#req-upload-002-inline-progress-ui) |
 | `lib/widgets/upload_queue_overlay.dart` | Top-level overlay enabling the Upload Files card globally | [REQ-UPLOAD-002](../sdd/upload.md#req-upload-002-inline-progress-ui) |
 | `lib/widgets/skeleton_loader.dart` | Loading skeleton placeholder | None |
-| `lib/widgets/common/` | Shared sub-widgets | None |
+| `lib/widgets/common/app_button.dart` | Themed button used across screens | None |
+| `lib/widgets/common/app_text_field.dart` | Themed text input with validation hooks | None |
+| `lib/widgets/common/glassmorphic_card.dart` | Glassmorphic card container for elevated UI surfaces | None |
+| `lib/widgets/common/minimal_text_field.dart` | Minimal text input variant for compact forms | None |
+
+### 4.7 Utilities
+
+| Path | Role | Implements |
+|---|---|---|
+| `lib/utils/responsive_layout.dart` | Breakpoint-based widget switcher (mobile/tablet) | None |
 
 ### 4.6 OAuth Worker
 
