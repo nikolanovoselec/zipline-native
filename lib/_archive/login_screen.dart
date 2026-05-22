@@ -1,9 +1,14 @@
+// LEGACY: archived 2026-05-22. This pre-refactor login UI is not wired into
+// main.dart (which uses SimpleLoginScreen). Kept here for reference only;
+// do not re-import without re-evaluating against the current auth flow.
+// See sdd/spec/.init-triage.md TRIAGE-001.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
 import '../services/oauth_service.dart';
 import '../widgets/common/minimal_text_field.dart';
-import 'home_screen.dart';
+import '../screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

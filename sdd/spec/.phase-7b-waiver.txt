@@ -13,3 +13,7 @@ lib/widgets/common/minimal_text_field.dart
 
 # Variant text-field widget. Pure presentation, no business logic.
 lib/widgets/common/app_text_field.dart
+
+# Archived pre-refactor login screen. Not wired into main.dart; kept for
+# reference per TRIAGE-001 resolution (2026-05-22).
+lib/_archive/login_screen.dart
