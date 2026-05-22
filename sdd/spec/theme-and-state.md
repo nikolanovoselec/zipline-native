@@ -27,6 +27,6 @@ Global `AppState` + `ThemeProvider` exposing user, auth, upload, and theme state
 
 **Constraints:** None.
 **Dependencies:** None.
-**Notes:** See [TRIAGE-007](.init-triage.md#triage-007-readme-claims-dark-mode-only-but-light-theme-exists) — README/light-theme drift to resolve.
+**Notes:** TRIAGE-007 resolved 2026-05-22 — light theme is implemented and selectable from settings; the README's "dark mode only" line is marketing voice, not a technical limitation. A README copy refresh is recommended as a follow-up.
 
 _Verification: code-only (no automated coverage)._
