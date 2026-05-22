@@ -14,7 +14,7 @@ Shorten a URL via the Zipline shortener API, with version-tolerant fallbacks for
 
 **Constraints:** [CON-API-001](constraints.md#con-api-001-tolerate-zipline-server-version-drift).
 **Dependencies:** [REQ-AUTH-003](authentication.md#req-auth-003-cloudflare-access-service-token-forwarding).
-**Notes:** See [TRIAGE-002](.init-triage.md#triage-002-shortener-endpoint-cascade) — confirm whether the v3 and legacy fallbacks are still load-bearing.
+**Notes:** TRIAGE-002 resolved 2026-05-22 — cascade accepted as load-bearing back-compat per CON-API-001. Future trim depends on a decision about minimum supported Zipline server version.
 
 ## REQ-URL-002: Custom slug (vanity) support
 
