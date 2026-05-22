@@ -35,6 +35,6 @@ Delete uploaded files and short URLs from the activity-log view; best-effort pas
 
 **Constraints:** None.
 **Dependencies:** None.
-**Notes:** See [TRIAGE-003](.init-triage.md#triage-003-setfilepassword-is-best-effort-silent) — likely needs to either be removed from the UI or wired to a real server release. Status `Partial` reflects "implemented as written but the user-facing promise is unverified".
+**Notes:** TRIAGE-003 resolved 2026-05-22 — accepted as unverified-Partial. Status `Partial` reflects "implemented as written but the user-facing promise is unverified"; code stays in place, UI-side failure surfacing deferred until upstream Zipline support is confirmed or denied.
 
 _Verification: code-only (no automated coverage)._
