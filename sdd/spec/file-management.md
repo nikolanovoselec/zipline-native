@@ -37,4 +37,16 @@ Delete uploaded files and short URLs from the activity-log view; best-effort pas
 **Dependencies:** None.
 **Notes:** TRIAGE-003 resolved 2026-05-22 — accepted as unverified-Partial. Status `Partial` reflects "implemented as written but the user-facing promise is unverified"; code stays in place, UI-side failure surfacing deferred until upstream Zipline support is confirmed or denied.
 
+## REQ-FILES-004: File expiration cannot be modified after upload
+
+**Status:** Partial
+**Intent:** Document the server-side limitation surfaced by `setFileExpiration`: Zipline's `PATCH /api/user/files/:id` endpoint does not accept the `deletesAt` field, so the client cannot change a file's expiration after upload. Expiration must be set at upload time or not at all.
+**Acceptance Criteria:**
+- `FileUploadService.setFileExpiration(fileId, expiresAt)` logs an error and returns `false` unconditionally; no HTTP call is issued. <!-- @impl: lib/services/file_upload_service.dart::setFileExpiration -->
+- The settings-screen file-detail UI exposes an expiration control that calls this method. The control is currently a no-op; surfacing the limitation in UI is a known gap (see Notes). <!-- @impl: lib/screens/settings_screen.dart::SettingsScreen -->
+
+**Constraints:** None.
+**Dependencies:** None.
+**Notes:** TRIAGE-004 resolved 2026-05-22 — accepted as a documented limitation. Status `Partial` flags that the UI control survives in code despite being non-functional; hiding it is a separate future change.
+
 _Verification: code-only (no automated coverage)._
