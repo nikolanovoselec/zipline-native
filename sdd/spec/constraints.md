@@ -23,6 +23,12 @@ The app is built and shipped for Android only. `android/app/build.gradle` declar
 
 **Applies To:** Build, deploy, runtime.
 
+### CON-PLATFORM-002: Application ID is currently the Flutter template default
+
+The Android `applicationId` is `com.example.zipline_native_app`. The same string appears in the Kotlin package path (`android/app/src/main/kotlin/com/example/zipline_native_app/`), the MethodChannel namespace (`com.example.zipline_native_app/intent`), the AndroidManifest, and the Cloudflare Worker Intent URL fallback (`intent://oauth-callback#Intent;package=com.example.zipline_native_app;...`). A `com.example.*` identifier cannot be published to the Play Store. Renaming requires lockstep updates to: `android/app/build.gradle`, the Kotlin package path on disk, `MainActivity.kt` package declaration, `AndroidManifest.xml`, `lib/services/intent_service.dart` MethodChannel name, and `cloudflare-oauth-redirect/src/worker.js`. Tracked as pre-release backlog (see [TRIAGE-005](.init-triage.md#triage-005-package-name-is-the-flutter-template-default)).
+
+**Applies To:** Release builds, OAuth Worker.
+
 ### CON-SEC-001: All secrets encrypted at rest
 
 Session cookies, passwords, OAuth tokens, and Cloudflare Access client secrets are stored with `FlutterSecureStorage(aOptions: AndroidOptions(encryptedSharedPreferences: true))`. Plain `SharedPreferences` is used only for non-sensitive preferences (theme mode, debug-logs toggle, activity log, last-used Zipline URL, last-used username). A migration path silently moves legacy plaintext secrets from `SharedPreferences` to secure storage on first run.
