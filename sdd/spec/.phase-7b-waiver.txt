@@ -1,0 +1,15 @@
+# Phase 7b enumeration-coverage waivers.
+# Each line: one repo-relative path that is genuinely a behavior-free UI primitive.
+# A one-line justification follows each path.
+
+# Reusable shimmer placeholder widget. Pure presentation, no business logic.
+lib/widgets/skeleton_loader.dart
+
+# Reusable Material button wrapper. Pure presentation, no business logic.
+lib/widgets/common/app_button.dart
+
+# Reusable text-field widget used by login + settings screens. Pure presentation.
+lib/widgets/common/minimal_text_field.dart
+
+# Variant text-field widget. Pure presentation, no business logic.
+lib/widgets/common/app_text_field.dart

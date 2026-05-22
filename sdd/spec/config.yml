@@ -1,0 +1,24 @@
+# SDD configuration — controls how spec-reviewer and doc-updater agents behave on this project.
+
+mode: interactive
+enforce_tdd: false
+transition: true
+
+test_globs:
+  - "test/**/*_test.dart"
+  - "tests/**/*.test.{mjs,js}"
+  - "cloudflare-oauth-redirect/tests/**/*.test.{mjs,js}"
+
+forbidden_content_allowlist:
+  protocols: true
+  vendors: true
+  http_codes_in_api_reqs: true
+  performance_numbers: true
+  user_facing_strings: true
+
+forbidden_content_overrides: []
+
+req_length:
+  warn: 25
+  medium: 50
+  high: 100
