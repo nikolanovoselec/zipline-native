@@ -61,6 +61,6 @@ Username/password login against a Zipline server, Cloudflare Access service-toke
 
 **Constraints:** [CON-SEC-001](constraints.md#con-sec-001-all-secrets-encrypted-at-rest).
 **Dependencies:** None.
-**Notes:** See [TRIAGE-006](.init-triage.md#triage-006-legacy-sensitive-data-migration) — drop after confirming all live installs have migrated.
+**Notes:** TRIAGE-006 resolved 2026-05-22 — accepted as eventual-removal target. The migration is retained until the pre-migration release age can be confirmed older than the oldest in-use install; deletion will land in a dedicated change after that confirmation.
 
 _Verification: code-only (no automated coverage)._
