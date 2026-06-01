@@ -11,6 +11,8 @@ Each entry is dated, ≤2 sentences, user-facing only. No commit SHAs. No "verif
 - Triage remains open for compatibility fallbacks, remote protection behavior, package naming, README drift, and prior closed scaffold history.
 - TRIAGE-001 resolved: the alternate login surface is a future feature and remains outside current implemented requirements.
 - TRIAGE-002 marked lost: the minimum server support policy is unknown, so current compatibility behavior remains documented until a future policy decision.
+- Remaining import triage resolved: remote protection stays best-effort, post-upload expiration editing stays out of scope, production app identifier selection is pre-release work, light mode is supported, and closed scaffold PRs remain historical context only.
+- SDD transition complete: 8 triage items resolved (6 accepted, 1 corrected, 1 lost).
 
 ## Pi runtime compatibility
 

@@ -2,7 +2,7 @@
 
 mode: interactive
 enforce_tdd: false
-transition: true
+transition: false
 
 test_globs:
   - "test/**/*_test.dart"

@@ -40,7 +40,7 @@ Successful file and link actions should quickly produce a shareable result throu
 
 ### CON-PLATFORM-001: Keep bridge identifiers synchronized
 
-The package identifier, method-channel namespace, manifest callback handling, and bridge fallback URL must change together if the app identifier changes.
+The package identifier, method-channel namespace, manifest callback handling, and bridge fallback URL must change together if the app identifier changes. Release work must choose a stable production identifier before public distribution.
 
 **Applies To:** App Bootstrap, Share Intake, Browser Sign-In Bridge, Build And Release
 
