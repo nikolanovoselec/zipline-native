@@ -8,7 +8,8 @@ Each entry is dated, ≤2 sentences, user-facing only. No commit SHAs. No "verif
 
 - Initial import scaffold added source-anchored requirements for the existing mobile sharing client and browser sign-in bridge.
 - Import Mode is intentionally strict: technical names stay in documentation while requirement bodies describe observable behavior only.
-- Triage remains open for legacy code, compatibility fallbacks, remote protection behavior, package naming, README drift, and prior closed scaffold history.
+- Triage remains open for compatibility fallbacks, remote protection behavior, package naming, README drift, and prior closed scaffold history.
+- TRIAGE-001 resolved: the alternate login surface is a future feature and remains outside current implemented requirements.
 
 ## Pi runtime compatibility
 

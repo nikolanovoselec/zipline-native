@@ -47,6 +47,7 @@ The following were considered and intentionally excluded from the product:
 - **Anonymous sharing** — all upload and link actions require a stored authenticated session.
 - **Post-upload expiration editing** — source currently records this as unsupported instead of pretending it succeeds.
 - **Generic hosting for the sign-in bridge** — the bundled bridge is written for the deployed worker runtime already present in the repository.
+- **Alternate login surface activation** — the dormant alternate sign-in screen is a future feature, not current implemented product behavior.
 - **Treating prior closed scaffold PRs as source of truth** — closed PRs are historical context only; current source anchors drive this import.
 
 ## Constraints
