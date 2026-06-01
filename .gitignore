@@ -49,6 +49,29 @@ app.*.map.json
 # APK files - use GitHub releases instead
 *.apk
 
+# Graphify knowledge graph
+# Commit graphify-out/graph.json, graphify-out/GRAPH_REPORT.md, and graphify-out/graph.html.
+# Ignore only regenerable caches and extraction intermediates.
+graphify-out/cache/
+graphify-out/.cache/
+graphify-out/.chunks/
+graphify-out/manifest.json
+graphify-out/.graphify_root
+graphify-out/.graphify_labels.json
+graphify-out/obsidian/
+.graphify_ast.json
+.graphify_semantic.json
+.graphify_semantic_new.json
+.graphify_extract.json
+.graphify_detect.json
+.graphify_analysis.json
+.graphify_cached.json
+.graphify_uncached.txt
+.graphify_chunk_*.txt
+.graphify_old.json
+.graphify_root
+.graphify_labels.json
+
 # Signing configuration (contains passwords)
 /android/key.properties
 *.jks
