@@ -10,6 +10,7 @@ Each entry is dated, ≤2 sentences, user-facing only. No commit SHAs. No "verif
 - Import Mode is intentionally strict: technical names stay in documentation while requirement bodies describe observable behavior only.
 - Triage remains open for compatibility fallbacks, remote protection behavior, package naming, README drift, and prior closed scaffold history.
 - TRIAGE-001 resolved: the alternate login surface is a future feature and remains outside current implemented requirements.
+- TRIAGE-002 marked lost: the minimum server support policy is unknown, so current compatibility behavior remains documented until a future policy decision.
 
 ## Pi runtime compatibility
 

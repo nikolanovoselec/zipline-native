@@ -16,6 +16,8 @@ This domain covers converting user-provided or shared text into shorter server-m
 4. The link service includes request credentials with the shortening request. <!-- @impl: lib/services/file_upload_service.dart::getAuthHeaders -->
 5. The link service normalizes supported response shapes into one short-link result. <!-- @impl: lib/services/file_upload_service.dart::shortenUrl -->
 
+**Notes:** Support-policy intent was lost during SDD transition; see [TRIAGE-002](../../sdd/spec/.init-triage.md#triage-002-short-link-compatibility-cascade-needs-a-support-policy-decision).
+
 **Constraints:** [CON-UX-001](constraints.md#con-ux-001-preserve-share-first-flow)
 
 **Priority:** P1
