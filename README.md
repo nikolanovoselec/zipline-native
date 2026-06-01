@@ -515,6 +515,12 @@ I don't collect your data because:
 
 Data stays on the phone and the Zipline server. That's it. No analytics, no tracking, no creepy stuff.
 
+## Specification and Documentation
+
+- [Product Specification](sdd/README.md) — source-anchored requirements and transition triage
+- [Implementation Documentation](documentation/README.md) — architecture, API, configuration, deployment, security, observability, and troubleshooting
+- [Architecture Decisions](documentation/decisions/README.md) — implementation trade-offs and rationale
+
 ## License
 
 MIT License - Because sharing is caring, and lawyers are expensive.
